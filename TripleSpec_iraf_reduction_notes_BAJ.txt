@@ -1,0 +1,574 @@
+######################################################
+# TRIPLESpec instrument (Palomar Observatory, CA, USA)
+######################################################
+# From top to bottom the orders are:
+# K band: order 3 (2.46 – 1.88μm) (aperture 4)
+# H band: order 4 (1.85 – 1.41μm) (aperture 3)
+# J band: order 5 (1.49 – 1.13μm) (aperture 2)
+# I band: order 6 (1.24 – 0.94μm) (aperture 1)
+# R band: order 7 (1.06 – 0.93μm)
+######################################################
+
+############################################### REDUCTION STEPS ###############################################
+# Commands to be entered at the terminal at indented by 4 spaces.
+# Comments start with a pound sign with no indent.
+--------------------------------------------------------------------------------------------
+1. Launch Packages and set configuration
+--------------------------------------------------------------------------------------------
+# Example using Phil's data 
+    > cd /Users/guillard/data/palomar/TripleSpec/data_20150428
+
+# launch pyraf and the following packages.
+    > pyraf
+    > noao
+    > imred
+    > ccdred
+    > echelle
+    > onedspec
+
+# to set the display to something reasonable for spectra
+    > gdev # list possible configurations
+# then
+    > set stdimage=imt2048
+# anytime you want to display anything in ds9, you'll have to have ds9 opened first, using the terminal.
+    > display tspec0038_f.fits zs- # should display image to assess quality. 
+
+# define the dispersion axis
+    > epar echelle
+    > echelle.dispaxis=1
+
+--------------------------------------------------------------------------------------------
+2. Make master dark and flat
+--------------------------------------------------------------------------------------------
+# edit image types
+# for these two tasks make sure that there is a new line character at the end of the last line in both of these lists
+# you can make the lists by just putting in the names of the files (for darks or flats)
+# using the logbook into the corresponding list files.
+# make sure the lists exist before running these commands!
+    > ccdhedit @darks.lis imagetype dark
+
+# average darks:
+    > darkcombine @darks.lis output=dark.fits ccdtype=dark combine=average  process- rdnoise=10. gain=3.8
+
+# subtract dark from flats
+    > imarith flat1.fits,flat2.fits,... - dark.fits
+# when it asks you where to put the resultant dark subtracted flats give it 
+# a corresponding list e.g. flat1_d.fits,flat2_d.fits,...
+# DO NOT enter any spaces after the commas
+# Make sure that flats.lis has the filenames that are the results after the dark sub
+
+    > ccdhedit @flats.lis imagetype flat
+
+# combine flats
+# median of flats
+    > flatcombine @flats.lis output=flat.fits ccdtype=flat process- rdnoise=10 gain=3.8
+
+--------------------------------------------------------------------------------------------
+3. Edit aperture parameters. Find and trace apertures. Make normalized flat.
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+3a. Edit aperture parameters.
+--------------------------------------------------------------------------------------------
+# edit aperture parameters before running apflatten (extraction of normalized flat)
+
+    > epar apedit 
+    > apedit.line = 4
+    > apedit.nsum = 10.
+    > apedit.width = 125
+    > apedit.threshold = 3.
+
+    > epar apfind 
+    > apfind.nsum = 10.
+    > apfind.nfind = 3
+    > apfind.minsep = 4.
+    > apfind.maxsep = 100.
+
+    > epar apresize
+    > apresize.nsum = 10.
+    > apresize.ylevel = 3.0
+    > apresize.peak = yes
+    > apresize.bkg = yes
+
+    > epar aptrace
+    > aptrace.nsum = 10.
+    > aptrace.function = spline3
+    > aptrace.order = 1.
+
+    > epar apflatten
+    > apflatten.nsum = 10
+    > apflatten.threshold = 5.
+    > apflatten.pfit = fit1d
+
+--------------------------------------------------------------------------------------------
+3b. Find, trace, and resize apertures. Create normalized flat.
+--------------------------------------------------------------------------------------------
+
+# creating a normalized flat with apflatten:
+
+    > apflatten flat output=flat_n interactive+ find+ recenter+ resize+ edit+ trace+ fittrace+ flatten+ fitspec+ function=spline3 order=9 readnoise=10 gain=3.8
+
+# answer (should be yes) the questions it will ask you before showing the display window
+# type "n" in the center of an aperture, and then "l" and "u" to set lower and upper limits. Do that for the 4 (or 3) apertures.
+# Now for each aperture.... 
+# set backbround: type "b" and then "t", then "s" and "s" to set lower and upper limits on each side of the trace
+# type f at the end to refit the background. Type "q" to go back to the traces, and "n" for the next aperture. When happy with the aperture, "q" to go to the fitting.
+
+# After fitting hte background it will ask you interactively if you want to fit the apertures. Say 'yes' to all of them. This answer
+# has to be typed in the display window, NOT the terminal.
+# adjust the order of the spline function by typing ':' then "o 3" for instance
+# keep in mind that once you change the order of the spline function it will keep the same order for the next spectrum too
+# while checking the fits if you want it to refit after deleting any points hit 'd' on a point to delete that from the fit
+# hit 'f' again to refit
+# this process can be repeated until you are happy 
+# hit 'q' when done.
+
+--------------------------------------------------------------------------------------------
+4. Create sci image lists and apply dark and flat field.
+--------------------------------------------------------------------------------------------
+# create a list of all science frames. 
+# This should include both the frames for the galaxy and its telluric standard. 
+# If the telluric standard frames have already been flat fielded for a previous
+# galaxy then leave those frames out of this list.
+
+# You could just use sublime text and make the list manually.
+# OR 
+# e.g. ls tspec00[2-9]*.fits > sci.lis
+    > ls tspec0*.fits > sci.lis
+# then edit it to remove darks and flats and any frames that you don't want to reduce
+
+# create a list of all flat-fielded science frames:
+# now copy the list to create a set of flattened names
+    > cp sci.lis sci_f.lis
+
+# MAKE SURE TO -------------
+# replace string .fits with _f.fits, in any text editor, in sci_f.lis
+# OTHERWISE IMARITH WILL OVERWRITE!
+
+# applying flat-field correction on all science frames. 
+# ----------------- ccdproc has never worked for me. Instead do: ------------------- # 
+    > imarith @sci.lis / flat_n1.fits @sci_f.lis
+
+# In case ccdproc does work, 
+# Examples with ccdproc:
+
+    > ccdproc @IC2520.lst output=@IC2520_f.lst overscan- trim- zerocor- darkcor- flatcor+ illum- fringe- fixpix- zero=dark.fits flat=flat_n.fits 
+    > ccdproc @HD84800.lst output=@HD84800_f.lst overscan- trim- zerocor- darkcor- flatcor+ illum- fringe- fixpix- dark=dark.fits flat=flat_n.fits 
+    > ccdproc @sci.lis output=@sci_f.lis overscan- trim- zerocor- darkcor- flatcor+ illum- fringe- fixpix- zero=dark.fits flat=flat_n.fits
+
+--------------------------------------------------------------------------------------------
+5. A-B (and B-A) subtraction
+--------------------------------------------------------------------------------------------
+
+# A-B subtraction
+# pairwise do subtraction of each image. 
+# Make sure you are subtracting flat fielded images.
+# check the log to see what the ABBA corresponding frames are, then do
+
+    > imarith imageA.fits - imageB.fits imageA-B.fits
+
+# e. g. for ABBA set -- 29,30,31,32
+    > imarith tspec0029_f.fits - tspec0030_f.fits t29.fits
+# and
+    > imarith tspec0032_f.fits - tspec0031_f.fits t32.fits
+# the resultant filenames are kept deliberately short just for convenience.
+
+# then make a list of these called BLAHHH_A-B.lis
+# again, make sure that there is a newline character at the end of the last filename in the list
+
+--------------------------------------------------------------------------------------------
+6. Average or median combine A-B (and B-A) subtracted images.
+--------------------------------------------------------------------------------------------
+
+# I used the following commands
+
+# Example: 
+# for the telluric standard star HIP 75230
+# with ABBA sequence 57,58,59,60
+    > imcomb t57ab.fits,t60ab.fits hip75230ab_mean.fits combine='average'
+
+# and for the source galaxy XL55
+# with ABBA sequence 61,62,63,64 and another ABBA sequence 69,70,71,72
+    > imcomb t61ab.fits,t64ab.fits,t69ab.fits,t72ab.fits xl55ab_mean.fits combine='average'
+
+# If you want to do median combination,
+    > imcombine @IC2520_A-B.lst output=IC2520_AB_comb.fits combine=median
+
+# -------------- Useful commands -------------- #
+#to plot a spectrum that lies across a row 
+# example
+    > splot  t32m31.fits[*,nnn] zs-  # where nnn = row number from iraf
+
+# plot spectra. Use ")" and "(" to go from one order to another.
+
+--------------------------------------------------------------------------------------------
+7. Clean cosmic rays
+--------------------------------------------------------------------------------------------
+# clean bad pixels (optional), in IRAF,
+    > imutil
+    > crutil
+    > crmedian input=xxx.fits output=xxx.fits
+
+# clean cosmic rays
+# load cosmic rays package, LA_COSMIC
+# This has to be done in IDL (or Python, but there is a separate la_cosmic.py file that needs to exist)
+# la_cosmic.pro should reside in the directory where you're doing the reductions 
+# or in the IDL_PATH
+# Commands in IDL, showing a couple examples,
+    IDL> .r la_cosmic.pro
+    IDL> la_cosmic,['xl55ab_mean.fits'],masklist=['masklacosmic.fits'],outsuf="_cleaned",readn=10.0,gain=3.8,sigclip=10.0
+    IDL> la_cosmic,['tspec0069.fits'],masklist=['masklacosmic.fits'],outsuf="_cleaned",readn=10.0,gain=3.8,sigclip=10.0
+
+# You should run LA_COSMIC on the combined image for the galaxy and also on two 
+# RAW (not flat fielded!!) individual frames for the galaxy.
+# Choose indiv frames which represent an A position and a B position on the slit.
+# These indiv frames will be used as a reference frame for wavelength calibration,
+# one for each slit position, so you don't want cosmic rays in it which could be 
+# confused for emission lines.
+
+# LA_COSMIC might give you the following error for the indiv frame
+# % Program caused arithmetic error: Floating illegal operand
+# This error doesn't seem to cause anything to go wrong. I just moved to the next step.
+
+--------------------------------------------------------------------------------------------
+8. Edit aperture parameters.
+--------------------------------------------------------------------------------------------
+# edit aperture extraction parameters before running doecslit (extraction)
+
+    > epar apedit
+    > apedit.width = 5.
+    > apedit.nsum = 5.
+    > apedit.threso = 3.
+
+    > epar apfind
+    > apfind.nsum = 5.
+    > apfind.nfind = 3
+    > apfind.minsep = 5.
+    > apfind.maxsep = 200.
+
+    > epar apresize
+    > apresize.nsum = 5.
+    > apresize.ylevel = 0.5
+    > apresize.peak = yes
+    > apresize.bkg = no
+
+    > epar aptrace
+    > aptrace.nsum = 5.
+    > aptrace.functio = spline3
+    > aptrace.order = 1.
+
+    > epar apflatten
+    > apflatten.nsum = 5.
+    > apflatten.thresho = 5.
+    > apflatten.pfit = fit1d
+
+--------------------------------------------------------------------------------------------
+9. Set Julian date.
+--------------------------------------------------------------------------------------------
+
+# Before you can do the wavelength calibration, you'll need to fix the header 
+# because la_cosmic for some reason doesn't bother to rewrite the original header.
+# To fix header after running la_cosmic, for example in IDL,
+
+    IDL> a=readfits('xl55ab_mean-cleaned.fits') 
+    % READFITS: Now reading 2048 by 1024 array
+    IDL> b=readfits('xl55ab_mean.fits',h)
+    % READFITS: Now reading 2048 by 1024 array
+    IDL> writefits,'xl55ab_mean-cleaned+h.fits',a,h
+
+# In python
+
+    > from astropy.io import fits
+
+    > orig = fits.open('/path/to/original_median_combined_image.fits')
+    > cleaned = fits.open('/path/to/cleaned_image_from_lacosmic.fits')
+
+    > cleaned[0].header = orig[0].header
+    > cleaned.writeto('/path/to/cleaned_image_from_lacosmic.fits', clobber=True)  # overwrites cleaned file with proper header
+
+# Make sure to do this for every image that LA_COSMIC worked with.
+
+# I then used these commands,
+    > setjd tspec0069-cleaned+h.fits date='DATE' epoch=''
+    > setjd xl55ab_mean-cleaned+h.fits date='DATE' epoch=''
+    > setjd hip75230ab_mean.fits date='DATE' epoch=''
+
+# I kept getting the error, "Warning: Error in date keyword" from setjd when I tried to 
+# run it on the CR cleaned raw frame. It did not have a problem running on the median combined
+# CR rejected galaxy image and the median combined standard star. 
+# I attempted to put in a header keyword called EPOCH and set it to J2000 but that did not help. 
+# Finally, I ran setjd on the corresponding flat fielded single frame and replaced the header 
+# in the CR cleaned frame with the new header of the flat fielded frame which now contained the 
+# Julian dates.
+
+--------------------------------------------------------------------------------------------
+10. Wavelength calibration. Might be helpful to read this entire step before doing anything.
+--------------------------------------------------------------------------------------------
+
+# Run multi-task DOECSLIT to perform extraction, wavelength and flux calibration 
+
+    > doecslit xl55ab_mean-cleaned+h.fits apref=hip75230ab_mean.fits arcs=tspec0069-cleaned+h.fits standards=hip75230ab_mean.fits dispcor+ extcor- fluxcal- resize+ trace+ redo- readnoise=10 gain=3.8 coordli=linelists$ohlines.dat norders=3
+
+# For the apertures, this is the same as before,
+# define apertures: n 
+# lower and upper bounds : l and u
+# hit '.' to go to the closest aperture to the crosshair.
+# The '.' also lets you tell iraf that that is the aperture you'll be editing limits for.
+
+# hit + or - to go from one aperture to another
+# background: hit b then t then s and s and f to re-fit the background. To change the order, type :o 2 for instance.
+# Then hit q when finish. Then hit + to go to next aperture to define the background
+
+# For ecidentify: 
+#=======================================
+########### USEFUL KEYSTROKES ###########
+
+######### TO MOVE AROUND IN THE WINDOW #########
+1. "w" + "f" to flip x axis.
+2. To zoom: "w", then "e" and "e".
+3. to go back to the orginal scale, hit 'w' for window and 'a' to autoscale
+
+######### TO MARK LINES #########
+type "m" to mark a feature and enter wavelength in angstroms. Select a few lines per order, esspecially on the edges.
+
+######### AFTER IDENTIFYING LINES #########
+To go to previous order : "j"
+To go to next order : "k"
+
+When enough lines are identified, type "l" to load the line catalog and "a", then "f". 
+"q" when identification is finished
+#optional: type "y" to Automatically find "maxfeatures" strongest peaks and identify them. 
+#          "u" to manually enter the wavelength in A.
+#=======================================
+
+# DOECSLIT will create a file, in the database folder, which is in the same data reduction 
+# directory, called *.ec.fits where * is the name of the combined A-B and cosmic ray
+# cleaned science image that you gave to it in the call to DOECSLIT.
+# This *.ec.fits contains information on the lines identified for each aperture.
+
+# --------- Comments from reduction at Palomar ------------
+# When we ran DOECSLIT it got to ecidentify and we were 
+# able to identify lines for hte first aperture (J band).
+# Then it seemed to be doing nothing when asked to fit so
+# we quit out of DOECSLIT. From that point on we simply 
+# called ECIDENTIFY by itself.
+# We think it needs at least two apertures to have lines
+# identified to be able to do the fitting because it did 
+# the fit after we went to the next aperutre (H band) and
+# identified the lines in there.
+# This is the command that we used,
+    > ecidentify tspec0069-cleaned+h.ec.fits coordlist=linelists$ohlines.dat
+# --------------------------------------------------------- 
+
+# if we want to redo the wavelength calibration: done with the airglow sky OH lines
+    > ecidentify tspec0027_f.ec.fits coordli=linelists$ohlines.dat
+
+--------------------------------------------------------------------------------------------
+11. Extract 1D spectra using apall.
+--------------------------------------------------------------------------------------------
+
+# This task will extract background subtracted 1D spectra using the aperture 
+# information from earlier.
+
+    > epar apall
+
+# It needs the following to be set, (showing an example for the star HIP75230)
+# Input: hip75230ab_mean
+# Output: test_hip75230_bk  # added test_ as prefix because we werent sure if it would work
+# references: hip75230ab_mean  # same as input. i.e. It will use the same image as reference for aperture info 
+# apall.interactive: YES
+# apall.find: NO
+# apall.recenter: NO
+# apall.resize: NO
+# apall.edit: NO
+# apall.trace: NO
+# apall.fittrace: NO
+# apall.extract: YES
+# nsum: 16  # This is the total extraction width i.e. number of rows it will sum. You may have to experiment with it to get it right, depending on the object brightness.
+# lower: -8
+# upper: 8
+# b_sample: -17:-9,9:17  # I think, these are rows referenced from the center of the spectrum which is row=1. 
+# background: median
+
+# As it runs it will show you the extracted spectra. Hit 'q' to finsh and move to the next one.
+# Hit '?' to get help with keyboard for any task.
+
+--------------------------------------------------------------------------------------------
+12. Normalize the telluric standard. 
+--------------------------------------------------------------------------------------------
+
+# Both of these sub steps should be done in IDL or Python.
+
+# The python code (in HOME/Desktop/ipac/XLiners_Palomar_ObsRun/) 
+# called rm_nan_norm.py will do all this (i.e. steps 12 and 13) 
+# if you just give it the correct object names. 
+
+--------------------------------------------------------------------------------------------
+12a. NaN the 0 and -ve values in telluric standard star spectrum. 
+--------------------------------------------------------------------------------------------
+
+# The array written by apall into a fits file has the spectra for different apertures along
+# an axis.
+# Find where the spectrum for each aperture is 0 or negative and replace those pixels by NaN.
+
+--------------------------------------------------------------------------------------------
+12b. Divide by median to normalize.
+--------------------------------------------------------------------------------------------
+
+# Divide the spectrum from each aperture by the median of that spectrum
+# Python code sample,
+
+    > from astropy.io import fits
+    > import numpy as np
+    > fname = 'filename_for_apall_bkg_sub_oneDspec_for_telluric'
+    > h = fits.open(fname)
+    > jspec = h[0].data[0,0]
+    > hspec = h[0].data[0,1]
+    > kspec = h[0].data[0,2]
+    > jspec_bkg = h[0].data[1,0]  # don't really need the bkg but this code shows the structure of the saved array
+    > hspec_bkg = h[0].data[1,1]
+    > kspec_bkg = h[0].data[1,2]
+    > jspec_norm = jspec / np.nanmedian(jspec)
+    > hspec_norm = hspec / np.nanmedian(hspec)
+    > kspec_norm = kspec / np.nanmedian(kspec)
+    > h[0].data[0,0] = jspec_norm
+    > h[0].data[0,1] = hspec_norm
+    > h[0].data[0,2] = kspec_norm
+    > h.writeto('*_norm.fits', clobber=True)  # the * can be the orginal filename or something easier
+
+--------------------------------------------------------------------------------------------
+13. Divide extracted galaxy spectrum by the normalized telluric standard spectrum. 
+--------------------------------------------------------------------------------------------
+
+# Continuing the python code from previous step
+# example for galaxy xl55
+
+    > xl55 = fits.open('path_to_apall_bkg_sub_extracted_spectrum_for_galaxy')
+    > xl55[0].data[0,0] /= jspec_norm
+    > xl55[0].data[0,1] /= hspec_norm
+    > xl55[0].data[0,2] /= kspec_norm
+    > xl55.writeto('*_norm.fits', clobber=True)
+
+--------------------------------------------------------------------------------------------
+14. Use dispcor to apply dispersion correction to extracted 1D spectra.
+--------------------------------------------------------------------------------------------
+
+# Before running dispcor, it seems like you need to edit the header keyword called REFSPEC1
+# in the extracted 1D spectra. 
+# It simply needs to have a .ec at the end.
+
+# continuing from python code above
+
+    > xl55[0].header['REFSPEC1'] = '*.ec'  # the * is whatever was there before
+    > print xl55[0].header['REFSPEC1']
+
+#### Showing relevant part of the edited header here ####
+TELID   = '200     '           / telescope ID                                   
+LODVER  = '/home/arcview/TSPEC/SPEC/config/DETECTOR/tim.lod' / timing board lod 
+GAIN    =                  3.8 / e-/adu                                         
+IMCMB001= 't61ab.fits'                                                          
+IMCMB002= 't64ab.fits'                                                          
+IMCMB003= 't69ab.fits'                                                          
+IMCMB004= 't72ab.fits'                                                          
+NCOMBINE=                    4                                                  
+JD      =     2457883.58075231                                                  
+HJD     =     2457883.58571979                                                  
+LJD     =             2457883.                                                  
+CCDPROC = 'DOSLIT  '                                                            
+REFSPEC1= 'tspec0069-cleaned+h.ec'                                              
+BANDID1 = 'spectrum - background median, weights none, clean no'                
+BANDID2 = 'background - background median'                                      
+APNUM1  = '1 1 668.35 696.06'                                                   
+APNUM2  = '2 2 811.50 839.21'                                                   
+APNUM3  = '3 3 970.82 1000.83'     
+
+############################################################
+
+# This header keyword editing requirement might go away if the reduction was done properly...
+# after editing the header start dispcor,
+
+    > epar dispcor
+
+# It needs the following to be set, (showing an example for the galaxy XL55)
+# input: xl55_NORM_ref.fits  # After editing the keyword REFSPEC1, I added the _ref suffix.
+# output: xl55_norm_dispcor.fits
+
+# ------------------------------------------------------------------------------------------ # 
+
+############################################ REST OF THE NOTES FROM PIERRE ############################################ 
+# WE DIDN'T DO ANY OF THIS ON THE PREVIOUS REDUCTION.
+# ---------------------------------------------------
+
+# standard task (flux calibration)
+# HD84800 J,H,K mag = 7.524, 7.519, 7.494 
+    > standard HD84800_AB_comb.ec.fits output=HD84800_AB_comb_std.ec caldir=onedstds$blackbody/ star_nam=K mag=7.494 magband=K teff=A2II interact+ samestar=no
+
+# compute sensitivity function
+
+    > sensfunc HD84800_AB_comb_std.ec sensitiv=HD84800_AB_sens function=legendre order=9 interac+
+
+# calibrate the spectrum
+
+    > calibrate IC2520_AB_comb.ec output=IC2520_AB_comb_cal extinct- flux+ sensiti=HD84800_AB_sens fnu+ airmass=1.006 exptime=300
+
+# plot calibrated spectrum
+    > splot IC2520_AB_comb_cal
+
+
+# reduction of standard and telluric calibrators
+
+    > doecslit HIP92396_AB_comb apref=HIP92396_AB_comb arcs=tspec0047_f redo- standar=HD201941_AB_comb dispcor+ fluxcal+ extcor+ 
+    > doecslit HIP92396_BA_comb apref=HIP92396_BA_comb arcs=tspec0047_f redo- standar=HD201941_BA_comb dispcor+ fluxcal+ extcor+
+
+
+# telluric absorption correction
+
+onedspec.telluric
+
+    > telluric 3C459_AB_comb.ec.fits output=3C459_AB_t.ec.fits cal=HIP92396_AB_comb.ec threshold=1e-14 lag=30 shift=0.0 scale=1.0 dscale=0.4 offset=0.5
+
+    > telluric 3C459_BA_comb.ec.fits output=3C459_BA_t.ec.fits cal=HIP92396_BA_comb.ec threshold=1e-14 lag=30 shift=0.0 scale=1.0 dscale=0.4 offset=0.5
+
+    > telluric 3C424_AB_comb.ec.fits output=3C424_AB_t.ec.fits cal=HIP92396_AB_comb.ec threshold=1e-14 lag=30 shift=0.0 dshift=0.2 scale=1.0 dscale=0.4 offset=0.5
+    > telluric 3C424_BA_comb.ec.fits output=3C424_BA_t.ec.fits cal=HIP92396_BA_comb.ec threshold=1e-14 lag=30 shift=0.0 dshift=0.2 scale=1.0 dscale=0.4 offset=0.5
+
+
+select a region with a clean telluric absorption line with the window commands (w, e, e). Type a for automatic shift fit. Then adjust scale (and shift) with the y and x commands.
+
+# combining spectra (with wavelength interpolation)
+# load package onedspec
+
+    > scombine 3C459_*_t.ec.fits output=3C459_t.ec combine=average
+
+# exporting to txt file (4 steps for 4 orders):
+
+    > wspectext 3C459_AB_comb.ec[*,1,1] 3C459_AB_comb.ec1.txt
+    > wspectext 3C459_AB_comb.ec[*,2,1] 3C459_AB_comb.ec2.txt
+    > wspectext 3C459_AB_comb.ec[*,3,1] 3C459_AB_comb.ec3.txt
+    > wspectext 3C459_AB_comb.ec[*,4,1] 3C459_AB_comb.ec4.txt
+
+    > wspectext 3C459_BA_comb.ec[*,1,1] 3C459_BA_comb.ec1.txt
+    > wspectext 3C459_BA_comb.ec[*,2,1] 3C459_BA_comb.ec2.txt
+    > wspectext 3C459_BA_comb.ec[*,3,1] 3C459_BA_comb.ec3.txt
+    > wspectext 3C459_BA_comb.ec[*,4,1] 3C459_BA_comb.ec4.txt
+
+    > wspectext 3C459_BA_t.ec[*,1,1] 3C459_BA_t.ec1.txt
+    > wspectext 3C459_BA_t.ec[*,2,1] 3C459_BA_t.ec2.txt
+    > wspectext 3C459_BA_t.ec[*,3,1] 3C459_BA_t.ec3.txt
+    > wspectext 3C459_BA_t.ec[*,4,1] 3C459_BA_t.ec4.txt
+
+    > wspectext 3C459_t.ec[*,1] 3C459_t.ec1.txt
+    > wspectext 3C459_t.ec[*,2] 3C459_t.ec2.txt
+    > wspectext 3C459_t.ec[*,3] 3C459_t.ec3.txt
+    > wspectext 3C459_t.ec[*,4] 3C459_t.ec4.txt
+
+    > wspectext 3C424_t.ec[*,1] 3C424_t.ec1.txt
+    > wspectext 3C424_t.ec[*,2] 3C424_t.ec2.txt
+    > wspectext 3C424_t.ec[*,3] 3C424_t.ec3.txt
+    > wspectext 3C424_t.ec[*,4] 3C424_t.ec4.txt
+
+# 3C405 (telluric and standard flux calibration done at the same time on the same star)
+
+    > wspectext 3C405_comb2.ec[*,1] 3C405_comb.ec1.txt
+    > wspectext 3C405_comb2.ec[*,2] 3C405_comb.ec2.txt
+    > wspectext 3C405_comb2.ec[*,3] 3C405_comb.ec3.txt
+    > wspectext 3C405_comb2.ec[*,4] 3C405_comb.ec4.txt
