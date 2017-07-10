@@ -398,9 +398,16 @@ When enough lines are identified, type "l" to load the line catalog and "a", the
 
 # Both of these sub steps should be done in IDL or Python.
 
-# The python code (in HOME/Desktop/ipac/XLiners_Palomar_ObsRun/) 
-# called rm_nan_norm.py will do all this (i.e. steps 12 and 13) 
+# The python codes (in HOME/Desktop/ipac/XLiners_Palomar_ObsRun/) 
+# called telluric_interp_stellar_lines.py and div_obj_telluric.py
+# will do all this (i.e. steps 12 and 13) 
 # if you just give it the correct object names. 
+
+# Run the code telluric_interp_stellar_lines.py first on the telluric star(s) 
+# you want. Check that the interpolation over the stellar lines is done
+# correctly. After this is done, run the code div_obj_telluric.py to 
+# divide the object spectrum by this new telluric spectrum which does not
+# have features from the star's own atmosphere.
 
 --------------------------------------------------------------------------------------------
 12a. NaN the 0 and -ve values in telluric standard star spectrum. 
