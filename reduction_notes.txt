@@ -1,0 +1,31 @@
+# reduction notes 
+# also corrections for typos in obs log
+
+####### ---------------------------------------------- #######
+
+# For night 20170509
+
+1. Obs log says that 33-37 is an ABBA sequence for XL53 but this is actually 33-36
+2. images 37 and 38 are an A and B sequence. Both seem ok but 38 has a much weaker signal than the rest of the B images. I'm still going to use image 38.
+3. For A-B subtraction, I did,
+
+--> imarith tspec0025_f.fits - tspec0030_f.fits t25.fits
+--> imarith tspec0028_f.fits - tspec0030_f.fits t28.fits
+--> imarith tspec0029_f.fits - tspec0030_f.fits t29.fits
+--> imarith tspec0032_f.fits - tspec0031_f.fits t32.fits
+--> imarith tspec0033_f.fits - tspec0034_f.fits t33.fits
+--> imarith tspec0036_f.fits - tspec0035_f.fits t36.fits
+--> imarith tspec0037_f.fits - tspec0038_f.fits t37.fits
+
+4. For B-A subtraction, I did,
+
+--> imarith tspec0030_f.fits - tspec0029_f.fits t30.fits
+--> imarith tspec0031_f.fits - tspec0032_f.fits t31.fits
+--> imarith tspec0034_f.fits - tspec0033_f.fits t34.fits
+--> imarith tspec0035_f.fits - tspec0036_f.fits t35.fits
+--> imarith tspec0038_f.fits - tspec0037_f.fits t38.fits
+
+
+
+####### ---------------------------------------------- #######
+

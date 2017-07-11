@@ -216,7 +216,7 @@
 # Commands in IDL, showing a couple examples,
     IDL> .r la_cosmic.pro
     IDL> la_cosmic,['xl53_AB_median.fits'],masklist=['mask_xl53_AB_median.fits'],outsuf="_cleaned",readn=10.0,gain=3.8,sigclip=10.0
-    IDL> la_cosmic,['tspec0069.fits'],masklist=['masklacosmic.fits'],outsuf="_cleaned",readn=10.0,gain=3.8,sigclip=10.0
+    IDL> la_cosmic,['tspec0069.fits'],masklist=['mask_tspec0069.fits'],outsuf="_cleaned",readn=10.0,gain=3.8,sigclip=10.0
 
 # You should run LA_COSMIC on the combined image for the galaxy and also on two 
 # RAW (not flat fielded!!) individual frames for the galaxy.
@@ -228,6 +228,36 @@
 # LA_COSMIC might give you the following error for the indiv frame
 # % Program caused arithmetic error: Floating illegal operand
 # This error doesn't seem to cause anything to go wrong. I just moved to the next step.
+
+--------------------------------------------------------------------------------------------
+7a. Fix header not written by LA_COSMIC
+--------------------------------------------------------------------------------------------
+# Before you can do the wavelength calibration, you'll need to fix the header 
+# because la_cosmic for some reason doesn't bother to rewrite the original header.
+# To fix header after running la_cosmic, for example in IDL,
+
+    IDL> a=readfits('xl55ab_mean-cleaned.fits') 
+    % READFITS: Now reading 2048 by 1024 array
+    IDL> b=readfits('xl55ab_mean.fits',h)
+    % READFITS: Now reading 2048 by 1024 array
+    IDL> writefits,'xl55ab_mean-cleaned+h.fits',a,h
+
+# In ipython,
+
+    > from astropy.io import fits
+
+    > orig = fits.open('/path/to/original_median_combined_image.fits')
+    > cleaned = fits.open('/path/to/cleaned_image_from_lacosmic.fits')
+
+    > cleaned[0].header = orig[0].header
+    > cleaned.writeto('/path/to/cleaned_image_from_lacosmic.fits', clobber=True)  # overwrites cleaned file with proper header
+
+# Or use a script,
+
+# The code called fix_lacosmic_header.py will do it. It needs to be given the names of the
+# original and cleaned files.
+
+# Make sure to do this for every image that LA_COSMIC worked with.
 
 --------------------------------------------------------------------------------------------
 8. Edit aperture parameters.
@@ -265,29 +295,7 @@
 9. Set Julian date.
 --------------------------------------------------------------------------------------------
 
-# Before you can do the wavelength calibration, you'll need to fix the header 
-# because la_cosmic for some reason doesn't bother to rewrite the original header.
-# To fix header after running la_cosmic, for example in IDL,
-
-    IDL> a=readfits('xl55ab_mean-cleaned.fits') 
-    % READFITS: Now reading 2048 by 1024 array
-    IDL> b=readfits('xl55ab_mean.fits',h)
-    % READFITS: Now reading 2048 by 1024 array
-    IDL> writefits,'xl55ab_mean-cleaned+h.fits',a,h
-
-# In python
-
-    > from astropy.io import fits
-
-    > orig = fits.open('/path/to/original_median_combined_image.fits')
-    > cleaned = fits.open('/path/to/cleaned_image_from_lacosmic.fits')
-
-    > cleaned[0].header = orig[0].header
-    > cleaned.writeto('/path/to/cleaned_image_from_lacosmic.fits', clobber=True)  # overwrites cleaned file with proper header
-
-# Make sure to do this for every image that LA_COSMIC worked with.
-
-# I then used these commands,
+# I used these commands,
     > setjd tspec0069-cleaned+h.fits date='DATE' epoch=''
     > setjd xl55ab_mean-cleaned+h.fits date='DATE' epoch=''
     > setjd hip75230ab_mean.fits date='DATE' epoch=''
@@ -299,6 +307,15 @@
 # Finally, I ran setjd on the corresponding flat fielded single frame and replaced the header 
 # in the CR cleaned frame with the new header of the flat fielded frame which now contained the 
 # Julian dates.
+
+i.e. In IPython,
+# After running setjd on the flat fielded image
+
+    > from astropy.io import fits
+    > f = fits.open('path/to/flat_fielded_image.fits')
+    > c = fits.open('path/to/corresponding/cleaned_image.fits')
+    > c[0].header = f[0].header
+    > c.writeto('path/to/corresponding/cleaned_image.fits', clobber=True)
 
 --------------------------------------------------------------------------------------------
 10. Wavelength calibration. Might be helpful to read this entire step before doing anything.
