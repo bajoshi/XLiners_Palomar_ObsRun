@@ -20,13 +20,13 @@ def plotspec(wav, spec, obj_name, band, slitpos):
 
     if band == 'j':
         ax.set_xlim(11500, 13500)
-        ax.set_ylim(0, 50)
+        ax.set_ylim(20, 150)
     elif band == 'h':
         ax.set_xlim(14900, 18000)
-        ax.set_ylim(0, 350)
+        ax.set_ylim(150, 500)
     elif band == 'k':
         ax.set_xlim(19600, 24100)
-        ax.set_ylim(0, 350)
+        ax.set_ylim(200, 800)
 
     #ax.get_yaxis().get_major_formatter().set_powerlimits((0, 0))
     #ax.set_yscale('log')
@@ -44,7 +44,7 @@ def plotspec(wav, spec, obj_name, band, slitpos):
 
 if __name__ == '__main__':
     
-    obj_name = 'xl692'
+    obj_name = 'xl53'
     slitpos = 'BA'
     obj_filename = '/Volumes/Bhavins_backup/ipac/Palomar_data/2017/20170511/' + obj_name + '_'\
      + slitpos + '_tellinterp_dispcor.fits'

@@ -10,8 +10,8 @@ import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
 
-    tell_name = 'hip65280'
-    obj_name = 'xl100'
+    tell_name = 'hip64248'
+    obj_name = 'xl53'
     slitpos = 'BA'
 
     obj_filename = '/Volumes/Bhavins_backup/ipac/Palomar_data/2017/20170511/' + obj_name + '_' + slitpos + '_bksub.fits'

@@ -215,7 +215,7 @@
 # or in the IDL_PATH
 # Commands in IDL, showing a couple examples,
     IDL> .r la_cosmic.pro
-    IDL> la_cosmic,['xl55ab_mean.fits'],masklist=['masklacosmic.fits'],outsuf="_cleaned",readn=10.0,gain=3.8,sigclip=10.0
+    IDL> la_cosmic,['xl53_AB_median.fits'],masklist=['mask_xl53_AB_median.fits'],outsuf="_cleaned",readn=10.0,gain=3.8,sigclip=10.0
     IDL> la_cosmic,['tspec0069.fits'],masklist=['masklacosmic.fits'],outsuf="_cleaned",readn=10.0,gain=3.8,sigclip=10.0
 
 # You should run LA_COSMIC on the combined image for the galaxy and also on two 

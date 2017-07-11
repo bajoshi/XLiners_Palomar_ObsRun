@@ -63,7 +63,7 @@ if __name__ == '__main__':
 
     # read in fits file and get wav calibrated spectra
     # give it the filename which has the dispersion corrected spectra
-    obj_name = 'xl100'
+    obj_name = 'xl53'
     slitpos = 'AB'
     obj_filename = '/Volumes/Bhavins_backup/ipac/Palomar_data/2017/20170511/' + obj_name + '_' \
     + slitpos + '_tellinterp_dispcor.fits'
