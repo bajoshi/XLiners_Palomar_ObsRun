@@ -10,17 +10,19 @@ import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
 
-    tell_name = 'hip64248'
-    obj_name = 'xl53'
+    tell_name = 'hip75230'
+    obj_name = 'xl55'
     slitpos = 'BA'
 
-    obj_filename = '/Volumes/Bhavins_backup/ipac/Palomar_data/2017/20170511/' + obj_name + '_' + slitpos + '_bksub.fits'
+    ext_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2017/'
+    date = '20170509/'
+
+    # read in object spec
+    obj_filename = ext_dir + date + obj_name + '_' + slitpos + '_bksub.fits'
     obj_spec = fits.open(obj_filename)
 
     # read in telluric spectrum iwth the stellar lines interpolated over
-    tell_filename = '/Volumes/Bhavins_backup/ipac/Palomar_data/2017/20170511/' + tell_name + '_' + slitpos + \
-    '_stellarlines_interp_norm_bksub.fits'
-
+    tell_filename = ext_dir + date + tell_name + '_' + slitpos + '_stellarlines_interp_norm_bksub.fits'
     tell_spec_hdu = fits.open(tell_filename)
 
     tell_jspec_norm = tell_spec_hdu[0].data[0,0]

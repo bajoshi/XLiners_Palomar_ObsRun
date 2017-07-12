@@ -26,6 +26,8 @@
 --> imarith tspec0038_f.fits - tspec0037_f.fits t38.fits
 
 
+########### Example command list for reduction of a single object -- XL 53 ###########
+
 
 ####### ---------------------------------------------- #######
 
