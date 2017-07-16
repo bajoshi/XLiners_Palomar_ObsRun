@@ -38,7 +38,7 @@ def get_spectra(obj_hdu):
 
     return jspec, hspec, kspec, np.asarray(jwav), np.asarray(hwav), np.asarray(kwav), jstart, hstart, kstart
 
-def smoothspectra(spec, width=1.25):
+def smoothspectra(spec, width=1):
 
     gauss_kernel = Gaussian1DKernel(width)  # width=1 is the same as no smoothing
     smoothed_spec = convolve(spec, gauss_kernel)
@@ -63,22 +63,14 @@ def coadd_dates():
 
     return None
 
-if __name__ == '__main__':
+def stack_and_finish(work_dir, obj_name, redshift, smooth_width):
 
-    # read in fits file and get wav calibrated spectra
-    # give it the filename which has the dispersion corrected spectra
-    obj_name = 'xl435'
-    slitpos = 'AB'
-    redshift = 0.0848958
-
-    ext_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2017/'
-    date = '20170511/'
-
-    obj_filename = ext_dir + date + obj_name + '_' + slitpos + '_tellinterp_dispcor.fits'
+    slitpos ='AB'
+    obj_filename = work_dir + obj_name + '_' + slitpos + '_tellinterp_dispcor.fits'
     obj_spec_ab = fits.open(obj_filename)
 
     slitpos = 'BA'
-    obj_filename = ext_dir + date + obj_name + '_' + slitpos + '_tellinterp_dispcor.fits'
+    obj_filename = work_dir + obj_name + '_' + slitpos + '_tellinterp_dispcor.fits'
     obj_spec_ba = fits.open(obj_filename)
 
     jspec_ab, hspec_ab, kspec_ab, jwav_ab, hwav_ab, kwav_ab, jstart_ab, hstart_ab, kstart_ab = get_spectra(obj_spec_ab)
@@ -106,12 +98,30 @@ if __name__ == '__main__':
     k_coadd = coadd_AB(kspec_ab, kspec_ba, kwav_ab, kwav_ba, kwav_grid, avg_delta)
 
     # smooth the coadded spectra
-    j_coadd_smooth = smoothspectra(j_coadd)
-    h_coadd_smooth = smoothspectra(h_coadd)
-    k_coadd_smooth = smoothspectra(k_coadd)
+    j_coadd_smooth = smoothspectra(j_coadd, width=smooth_width)
+    h_coadd_smooth = smoothspectra(h_coadd, width=smooth_width)
+    k_coadd_smooth = smoothspectra(k_coadd, width=smooth_width)
 
-    pfs.plotspec(ext_dir, date, jwav_grid, j_coadd_smooth, obj_name, 'j', 'coadd', redshift)
-    pfs.plotspec(ext_dir, date, hwav_grid, h_coadd_smooth, obj_name, 'h', 'coadd', redshift)
-    pfs.plotspec(ext_dir, date, kwav_grid, k_coadd_smooth, obj_name, 'k', 'coadd', redshift)
+    if smooth_width > 1.0:
+        pfs.plotspec(work_dir, jwav_grid, j_coadd_smooth, obj_name, 'j', 'coadd_sm', redshift)
+        pfs.plotspec(work_dir, hwav_grid, h_coadd_smooth, obj_name, 'h', 'coadd_sm', redshift)
+        pfs.plotspec(work_dir, kwav_grid, k_coadd_smooth, obj_name, 'k', 'coadd_sm', redshift)
+    elif smooth_width == 1.0:
+        pfs.plotspec(work_dir, jwav_grid, j_coadd_smooth, obj_name, 'j', 'coadd', redshift)
+        pfs.plotspec(work_dir, hwav_grid, h_coadd_smooth, obj_name, 'h', 'coadd', redshift)
+        pfs.plotspec(work_dir, kwav_grid, k_coadd_smooth, obj_name, 'k', 'coadd', redshift)
+
+    return None
+
+if __name__ == '__main__':
+
+    # read in fits file and get wav calibrated spectra
+    # give it the filename which has the dispersion corrected spectra
+    obj_name = 'xl435'
+    slitpos = 'AB'
+    redshift = 0.0848958
+
+    ext_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/test/'
+    date = ''
 
     sys.exit(0)

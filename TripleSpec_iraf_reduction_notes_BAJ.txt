@@ -57,11 +57,17 @@
 # DO NOT enter any spaces after the commas
 # Make sure that flats.lis has the filenames that are the results after the dark sub
 
-    > ccdhedit @flats.lis imagetype flat
+# You can also just do --
+# flats_d.lis has all the flat field image names but with a 
+# _d before the .fits to show that these are dark subtracted flats.
+
+    > imarith @flats.lis - dark.fits @flats_d.lis
+
+    > ccdhedit @flats_d.lis imagetype flat
 
 # combine flats
 # median of flats
-    > flatcombine @flats.lis output=flat.fits ccdtype=flat process- rdnoise=10 gain=3.8
+    > flatcombine @flats_d.lis output=master_flat.fits ccdtype=flat process- rdnoise=10 gain=3.8
 
 --------------------------------------------------------------------------------------------
 3. Edit aperture parameters. Find and trace apertures. Make normalized flat.
@@ -105,7 +111,7 @@
 
 # creating a normalized flat with apflatten:
 
-    > apflatten flat output=flat_n interactive+ find+ recenter+ resize+ edit+ trace+ fittrace+ flatten+ fitspec+ function=spline3 order=9 readnoise=10 gain=3.8
+    > apflatten master_flat output=master_flatN interactive+ find+ recenter+ resize+ edit+ trace+ fittrace+ flatten+ fitspec+ function=spline3 order=9 readnoise=10 gain=3.8
 
 # answer (should be yes) the questions it will ask you before showing the display window
 # type "n" in the center of an aperture, and then "l" and "u" to set lower and upper limits. Do that for the 4 (or 3) apertures.
@@ -408,6 +414,42 @@ When enough lines are identified, type "l" to load the line catalog and "a", the
 
 # As it runs it will show you the extracted spectra. Hit 'q' to finsh and move to the next one.
 # Hit '?' to get help with keyboard for any task.
+
+
+######### --------------- #########
+#  IF you are NOT running the procedure for the first time in a night -------
+
+1. SET ALL THE ABOVE "NO" TO "YES" and run apall. The keys and process are the same as before.
+
+2. Make sure that the apertures are numbered 1, 2, and 3 corresponding to J, H, and K.
+----> This HAS to be done this way for the later dispcor step to give you the correct spectra.
+(Actually, J, H, K have to correspond to the order you did them in doecslit the first time. But the usual way is to go 1,2,3 for J,H,K.)
+----> Also, IRAF has an weird way of numbering apertures. So the following keys, 
+when pressed while hte crosshair is on or near an aperture, will help.
+
+o: reorder the selected aperture; the user will have to give an aperture number. The selected aperture gets this number but this key also reorders all the other apertures. (this one isn't too helpful; you'll probably only need 'i')
+i: give the selected aperture a number. If the number is already chosen then give it a dummy number in order to switch two aperture numbers. You might have to hit 'r' to get it to redraw the graph and see your new given aperture number.
+
+3. You will also probably have to refit the traces with higher order polynomials. I found that a 5th order polynomial usually works.
+Hit ':' and then 'o n' where n is the order of the polynomial you want to fit.
+Hit 'f' to refit. Hit 'd' to delete points from the fitting. Hit 'q' when done.
+
+4. You will also need to use the window keys to zoom into apertures and set limits.
+'.': This will snap the crosshair to the nearest aperture and make it hte current aperture being edited.
+'w': THis tells iraf that you'll be entering window keys.
+--> 'a': to go back to the default graph.
+--> 'e' and 'e': to expand/zoom into a region.
+--> 'r': redraw graph.
+'m': tells IRAF to automatically center and put an aperture near the crosshair position.
+I've found that IRAF tends to be conservative in automatically setting aperture limits so you'll probably have to edit them with 'l' and 'u'.
+
+5. Also make sure to check the background subtraction for hte apertures.
+'b': Hit this key on an aperture to go to background setting.
+'t': to erase previous background bands.
+'s' and 's': you'll have to do this on each side of the aperutre. 
+Then hit 'f' to fit. If it is okay then hit 'q'.
+
+######### --------------- #########
 
 --------------------------------------------------------------------------------------------
 12. Normalize the telluric standard. 

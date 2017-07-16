@@ -150,9 +150,9 @@ def interpolate_over_stellar_lines(tell_hdu):
 
     return tell_hdu
 
-def do_all(ext_dir, date, tell_name, slitpos):
+def do_all(work_dir, tell_name, slitpos):
 
-    tell_filename = ext_dir + date + tell_name + '_' + slitpos + '_bksub.fits'
+    tell_filename = work_dir + tell_name + '_' + slitpos + '_bksub.fits'
     tell_star_spec = fits.open(tell_filename)
 
     tell_star_spec = interpolate_over_stellar_lines(tell_star_spec)
@@ -165,11 +165,11 @@ def do_all(ext_dir, date, tell_name, slitpos):
 if __name__ == '__main__':
 
     slitpos = 'BA'
-    ext_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2017/'
-    date = '20170509/'
+    ext_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/test/'
+    date = ''
     
     # ------------- first telluric --------------- #
-    tell_name = 'hip75230'
+    tell_name = 'hip64248'
     do_all(ext_dir, date, tell_name, slitpos)
 
     # ------------- second telluric --------------- #

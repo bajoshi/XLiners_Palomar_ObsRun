@@ -31,3 +31,6 @@
 
 ####### ---------------------------------------------- #######
 
+# SQ reduction
+
+# files 35-50 accidentally got overwritten by the flat fielding so the current 35-50 images are flat fielded ones.
