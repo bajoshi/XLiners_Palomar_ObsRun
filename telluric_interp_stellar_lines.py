@@ -25,7 +25,7 @@ def interp_and_plot(line_left, line_right, tell_spec_for_line):
     ax.plot(x_intp, tell_spec_for_line[line_left[0]: line_right[-1]])
     ax.plot(x_intp, line_func(x_intp))
 
-    plt.show()
+    #plt.show()
 
     return line_func, x_intp
 
@@ -140,9 +140,9 @@ def interpolate_over_stellar_lines(tell_hdu):
     tell_spec_h[Br_lambda_xvals] = Br_lambda_linefunc(Br_lambda_xvals)
     tell_spec_h[Br_mu_xvals] = Br_mu_linefunc(Br_mu_xvals)
 
-    plot_tell_after_interp(tell_spec_j_old, tell_spec_j)
-    plot_tell_after_interp(tell_spec_h_old, tell_spec_h)
-    plot_tell_after_interp(tell_spec_k_old, tell_spec_k)
+    #plot_tell_after_interp(tell_spec_j_old, tell_spec_j)
+    #plot_tell_after_interp(tell_spec_h_old, tell_spec_h)
+    #plot_tell_after_interp(tell_spec_k_old, tell_spec_k)
 
     tell_hdu[0].data[0,0] = tell_spec_j
     tell_hdu[0].data[0,1] = tell_spec_h

@@ -8,6 +8,23 @@ import sys
 
 import matplotlib.pyplot as plt 
 
+def get_flux_lims(wav, spec, wav_low, wav_high):
+
+    wav = np.asarray(wav)
+    spec = np.asarray(spec)
+
+    lam_idx = np.where((wav >= wav_low) & (wav <= wav_high))[0]
+    low_flux_lim = np.min(spec[lam_idx])
+    high_flux_lim = np.max(spec[lam_idx])
+
+    if low_flux_lim < 0.0:
+        low_flux_lim = 0.0
+
+    low_flux_lim -= 0.05 * low_flux_lim
+    high_flux_lim += 0.05 * high_flux_lim
+
+    return low_flux_lim, high_flux_lim 
+
 def plotspec(work_dir, wav, spec, obj_name, band, slitpos, redshift):
 
     fig = plt.figure()
@@ -29,14 +46,25 @@ def plotspec(work_dir, wav, spec, obj_name, band, slitpos, redshift):
     br_delta = 19446  # air
 
     if band == 'j':
-        ax.set_xlim(11500, 13500)
-        ax.set_ylim(20, 100)
+        j_low = 11500
+        j_high = 13500
+        ax.set_xlim(j_low, j_high)
+        jflux_low, jflux_high = get_flux_lims(wav, spec, j_low, j_high)
+        ax.set_ylim(jflux_low, jflux_high)
+
     elif band == 'h':
-        ax.set_xlim(14900, 18000)
-        ax.set_ylim(100, 500)
+        h_low = 14900
+        h_high = 18000
+        ax.set_xlim(h_low, h_high)
+        hflux_low, hflux_high = get_flux_lims(wav, spec, h_low, h_high)
+        ax.set_ylim(hflux_low, hflux_high)
+
     elif band == 'k':
-        ax.set_xlim(19000, 24100)
-        ax.set_ylim(100, 1000)
+        k_low = 19500
+        k_high = 24100
+        ax.set_xlim(19000, k_high)
+        kflux_low, kflux_high = get_flux_lims(wav, spec, k_low, k_high)
+        ax.set_ylim(kflux_low, kflux_high)
 
         ax.axvline(x=pas_alpha * (1 + redshift), ymin=0.65, ymax=0.85, lw='2', ls='--', color='r')
         ax.axvline(x=h2_1_0_s1 * (1 + redshift), ymin=0.65, ymax=0.85, lw='2', ls='--', color='r')
@@ -50,18 +78,21 @@ def plotspec(work_dir, wav, spec, obj_name, band, slitpos, redshift):
         # this will allow you to transform any (xp, yp) axes point to
         # data coordinates. I don't need these lines for now but htey're useful.
 
-        ax.text(x=pas_alpha * (1 + redshift), y=650.0, s=r'$\mathrm{Pas\ \alpha}$', fontsize=8)
-        ax.text(x=h2_1_0_s2 * (1 + redshift), y=650.0, s=r'$\mathrm{H_2\ 1-0\, S(2)}$', fontsize=8)
-        ax.text(x=h2_1_0_s3 * (1 + redshift), y=650.0, s=r'$\mathrm{H_2\ 1-0\, S(3)}$', fontsize=8)
+        ax_ypos1 = kflux_high * 0.84
+        ax_ypos2 = kflux_high * 0.81
+
+        ax.text(x=pas_alpha * (1 + redshift), y=ax_ypos1, s=r'$\mathrm{Pas\ \alpha}$', fontsize=10)
+        ax.text(x=h2_1_0_s2 * (1 + redshift), y=ax_ypos1, s=r'$\mathrm{H_2\ 1-0\, S(2)}$', fontsize=10)
+        ax.text(x=h2_1_0_s3 * (1 + redshift), y=ax_ypos1, s=r'$\mathrm{H_2\ 1-0\, S(3)}$', fontsize=10)
 
         if h2_1_0_s1 * (1 + redshift) < 24100:
-            ax.text(x=h2_1_0_s1 * (1 + redshift), y=650.0, s=r'$\mathrm{H_2\ 1-0\, S(1)}$', fontsize=8)
+            ax.text(x=h2_1_0_s1 * (1 + redshift), y=ax_ypos1, s=r'$\mathrm{H_2\ 1-0\, S(1)}$', fontsize=10)
 
         if br_gamma * (1 + redshift) < 24100:
-            ax.text(x=br_gamma * (1 + redshift), y=610.0, s=r'$\mathrm{Br\ \gamma}$', fontsize=8)
+            ax.text(x=br_gamma * (1 + redshift), y=ax_ypos2, s=r'$\mathrm{Br\ \gamma}$', fontsize=10)
 
         if br_delta * (1 + redshift) < 24100:
-            ax.text(x=br_delta * (1 + redshift), y=610.0, s=r'$\mathrm{Br\ \delta}$', fontsize=8)
+            ax.text(x=br_delta * (1 + redshift), y=ax_ypos2, s=r'$\mathrm{Br\ \delta}$', fontsize=10)
 
     #ax.get_yaxis().get_major_formatter().set_powerlimits((0, 0))
     #ax.set_yscale('log')

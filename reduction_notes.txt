@@ -33,4 +33,5 @@
 
 # SQ reduction
 
-# files 35-50 accidentally got overwritten by the flat fielding so the current 35-50 images are flat fielded ones.
+1. files 35-50 accidentally got overwritten by the flat fielding so the current 35-50 images are flat fielded ones.
+2. I'm assuming that all objects here are at hte same redshift. I've used 0.0225

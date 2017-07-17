@@ -7,6 +7,7 @@ from pyraf import iraf
 import string
 import os
 import sys
+import shutil
 
 import matplotlib.pyplot as plt
 
@@ -92,9 +93,9 @@ def do_a_minus_b(work_dir, sci_list, prefix):
             b_list.append(prefix + b2_num + '.fits')
 
     else:
-        print "Please check the length of the list and make \
-        sure that you are giving an integer number of ABBA sequences \
-        in the correct order. Exiting."
+        print "Please check the length of the list and make"
+        print "sure that you are giving an integer number of ABBA sequences"
+        print "in the correct order. Exiting."
         sys.exit(0)
 
     return a_list, b_list
@@ -129,12 +130,18 @@ def copy_from_raw(work_dir, raw_dir, sci_list):
     fh = open(work_dir + sci_list, 'r')
 
     for fl in fh.read().splitlines():
-        shutil.copy(raw_dir + fl, work_dir + fl)
+        if not os.path.isfile(work_dir + fl):
+            shutil.copy(raw_dir + fl, work_dir + fl)
 
     fh.close()
 
     # also copy la_cosmic
-    shutil.copy(raw_dir + 'la_cosmic.pro', work_dir + 'la_cosmic.pro')
+    if not os.path.isfile(work_dir + 'la_cosmic.pro'):
+        shutil.copy(raw_dir + 'la_cosmic.pro', work_dir + 'la_cosmic.pro')
+
+    # also copy normalized master flat
+    if not os.path.isfile(work_dir + 'master_flatN.fits'):
+        shutil.copy(raw_dir + 'master_flatN.fits', work_dir + 'master_flatN.fits')
 
     return None
 
@@ -143,24 +150,18 @@ def finish_combine(work_dir, raw_dir, obj_name):
     # change iraf working directory
     iraf.cd(work_dir)
 
-    # make sure to give the correct lists
-    darks = []
-    flats = []
-    
-    ### make master dark and flat ###
-    # run ccdhedit first
+    # put in code to make master dark and flat
     
     # first copy sci images from raw directory
+    sci_list = obj_name + '_sci.lis'
     copy_from_raw(work_dir, raw_dir, sci_list)
 
     # make flat fielded images
     flat_norm = 'master_flatN.fits'
-    sci_list = obj_name + '_sci.lis'
-
     make_flat_fielded_images(work_dir, flat_norm, sci_list)
 
     # A-B subtraction
-    a_list, b_list = do_a_minus_b(work_dir, sci_list, 'SQ')
+    a_list, b_list = do_a_minus_b(work_dir, sci_list, 'tspec')
 
     # save the A and B lists to a file in case you need them later 
     save_AB_lists(work_dir, obj_name, a_list, b_list)
@@ -193,14 +194,19 @@ def run_fix_lacosmic_header_setjd(work_dir, obj_name, refspecA, refspecB):
     iraf.setjd(filenameA, date='DATE', epoch='')
     iraf.setjd(filenameB, date='DATE', epoch='')
 
-    ffA = refspecA.replace('.fits', '_f.fits')
-    ffB = refspecB.replace('.fits', '_f.fits')
-    iraf.setjd(ffA, date='DATE', epoch='')
-    iraf.setjd(ffB, date='DATE', epoch='')
+    # this only needs to be done once
+    # i.e. the first time in a night
+    # probalby bet to do it in hte IRAF CL
+    """
+        ffA = refspecA.replace('.fits', '_f.fits')
+        ffB = refspecB.replace('.fits', '_f.fits')
+        iraf.setjd(ffA, date='DATE', epoch='')
+        iraf.setjd(ffB, date='DATE', epoch='')
 
-    # now fix the headers for the ref specs
-    fx.fix_la_cosmic_header(work_dir, refspecA.split('.')[0], for_setjd=True)
-    fx.fix_la_cosmic_header(work_dir, refspecB.split('.')[0], for_setjd=True)
+        # now fix the headers for the ref specs
+        fx.fix_la_cosmic_header(work_dir, refspecA.split('.')[0], for_setjd=True)
+        fx.fix_la_cosmic_header(work_dir, refspecB.split('.')[0], for_setjd=True)
+    """
 
     return None
 
@@ -237,42 +243,48 @@ if __name__ == '__main__':
     iraf.onedspec(_doprint=0)
 
     # definitions
-    work_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2009/test2/'
-    raw_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2009/20090812/'
-    obj_name = 'ngc7319nuc'
-    redshift = 0.0225
-    telluric = 'hd203856'
-
-    #finish_combine(work_dir, raw_dir, obj_name)
-    #sys.exit(0)
-
-    # Make sure you run LA_COSMIC in IDL before this next step is run.
-    # You need to run LA_COSMIC on the median combined images and on
-    # the reference images for wavelength calibration
-    # for the reference images this only has to be done for a single 
-    # A and a B file per night because the .ec files for these 
-    # reference spectra will simply be copied for other objects.
+    work_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2016/2016A/P2016A/baj_work_night2/'
+    raw_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2016/2016A/P2016A/night2_2016MAY24/'
+    obj_name = 'xl124'
+    redshift = 0.0875584
+    telluric = 'hip64248'
 
     refspecA = 'SQ0043.fits'
     refspecB = 'SQ0044.fits'
 
-    #run_fix_lacosmic_header_setjd(work_dir, obj_name, refspecA, refspecB)
+    #finish_combine(work_dir, raw_dir, telluric)
+    #finish_combine(work_dir, raw_dir, obj_name)
     #sys.exit(0)
 
-    # the first time you reduce data for a night you'll have to run doecslit
-    # see the reduction notes for that
-    # If you are not running this script for first time in a night then you don't 
-    # need doecslit. You can proceed directly to running apall inside iraf
-    # after running the above two functions for the sci list of a given object.
-    # make sure that the apall settings are as shown in the notes.
-    # Check the notes carefully for apall.
-    # MAKE SURE to run apall on the telluric as well.
+    """
+        Make sure you run LA_COSMIC in IDL before this next step is run.
+        You need to run LA_COSMIC on the median combined images and on
+        the reference images for wavelength calibration
+        for the reference images this only has to be done for a single 
+        A and a B file per night because the .ec files for these 
+        reference spectra will simply be copied for other objects.
+    """
+
+    #run_fix_lacosmic_header_setjd(work_dir, obj_name, refspecA, refspecB)
+    #sys.exit(0)
+    
+    """
+        the first time you reduce data for a night you'll have to run doecslit
+        see the reduction notes for that
+        If you are not running this script for first time in a night then you don't 
+        need doecslit. You can proceed directly to running apall inside iraf
+        after running the above two functions for the sci list of a given object.
+        make sure that the apall settings are as shown in the notes.
+        Check the notes carefully for apall.
+        MAKE SURE to run apall on the telluric as well.
+    """
 
     #finish_final(work_dir, obj_name, telluric, refspecA, refspecB)
     #sys.exit(0)
 
-    # RUN DISPCOR in IRAF now!
-    # Check reduction notes.
-    cs.stack_and_finish(work_dir, obj_name, redshift, smooth_width=3.0)
-
+    """
+        RUN DISPCOR in IRAF now!
+        Check reduction notes.
+    """
+    cs.stack_and_finish(work_dir, obj_name, redshift, smooth_width=5.0)
     sys.exit(0)
