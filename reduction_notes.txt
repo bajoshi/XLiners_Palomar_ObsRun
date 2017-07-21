@@ -35,3 +35,17 @@
 
 1. files 35-50 accidentally got overwritten by the flat fielding so the current 35-50 images are flat fielded ones.
 2. I'm assuming that all objects here are at hte same redshift. I've used 0.0225
+
+# MAY 2016 B reduction
+
+1. There's something wrong with K-band B position median spectrum of hd216219 and therefore possibly also with K-band B position of xw3.
+2. Skipped 
+114  # xw588
+115  # xw588
+132--140  # xw244
+157  # xw546
+158  # xw546
+# Many of these are good and can be used. Skipped for now because my code can only handle proper ABBA sequences.
+3. for xw546 it seems like there are 2 objects in the slit at the A position. I'm only considering the brighter.
+
+

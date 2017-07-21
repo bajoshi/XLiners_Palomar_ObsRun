@@ -8,7 +8,7 @@ import sys
 
 import matplotlib.pyplot as plt 
 
-def get_flux_lims(wav, spec, wav_low, wav_high):
+def get_flux_lims(wav, spec, wav_low, wav_high, force_zero=True, extension_factor=0.05):
 
     wav = np.asarray(wav)
     spec = np.asarray(spec)
@@ -17,11 +17,12 @@ def get_flux_lims(wav, spec, wav_low, wav_high):
     low_flux_lim = np.min(spec[lam_idx])
     high_flux_lim = np.max(spec[lam_idx])
 
-    if low_flux_lim < 0.0:
-        low_flux_lim = 0.0
+    low_flux_lim -= extension_factor * low_flux_lim
+    high_flux_lim += extension_factor * high_flux_lim
 
-    low_flux_lim -= 0.05 * low_flux_lim
-    high_flux_lim += 0.05 * high_flux_lim
+    if force_zero:
+        if low_flux_lim < 0.0:
+            low_flux_lim = 0.0
 
     return low_flux_lim, high_flux_lim 
 
@@ -85,13 +86,13 @@ def plotspec(work_dir, wav, spec, obj_name, band, slitpos, redshift):
         ax.text(x=h2_1_0_s2 * (1 + redshift), y=ax_ypos1, s=r'$\mathrm{H_2\ 1-0\, S(2)}$', fontsize=10)
         ax.text(x=h2_1_0_s3 * (1 + redshift), y=ax_ypos1, s=r'$\mathrm{H_2\ 1-0\, S(3)}$', fontsize=10)
 
-        if h2_1_0_s1 * (1 + redshift) < 24100:
+        if h2_1_0_s1 * (1 + redshift) < k_high:
             ax.text(x=h2_1_0_s1 * (1 + redshift), y=ax_ypos1, s=r'$\mathrm{H_2\ 1-0\, S(1)}$', fontsize=10)
 
-        if br_gamma * (1 + redshift) < 24100:
+        if br_gamma * (1 + redshift) < k_high:
             ax.text(x=br_gamma * (1 + redshift), y=ax_ypos2, s=r'$\mathrm{Br\ \gamma}$', fontsize=10)
 
-        if br_delta * (1 + redshift) < 24100:
+        if br_delta * (1 + redshift) < k_high:
             ax.text(x=br_delta * (1 + redshift), y=ax_ypos2, s=r'$\mathrm{Br\ \delta}$', fontsize=10)
 
     #ax.get_yaxis().get_major_formatter().set_powerlimits((0, 0))

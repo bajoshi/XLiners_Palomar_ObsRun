@@ -145,7 +145,7 @@ def copy_from_raw(work_dir, raw_dir, sci_list):
 
     return None
 
-def finish_combine(work_dir, raw_dir, obj_name):
+def finish_combine(work_dir, raw_dir, obj_name, prefix):
 
     # change iraf working directory
     iraf.cd(work_dir)
@@ -161,7 +161,7 @@ def finish_combine(work_dir, raw_dir, obj_name):
     make_flat_fielded_images(work_dir, flat_norm, sci_list)
 
     # A-B subtraction
-    a_list, b_list = do_a_minus_b(work_dir, sci_list, 'tspec')
+    a_list, b_list = do_a_minus_b(work_dir, sci_list, prefix)
 
     # save the A and B lists to a file in case you need them later 
     save_AB_lists(work_dir, obj_name, a_list, b_list)
@@ -243,17 +243,18 @@ if __name__ == '__main__':
     iraf.onedspec(_doprint=0)
 
     # definitions
-    work_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2016/2016A/P2016A/baj_work_night2/'
-    raw_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2016/2016A/P2016A/night2_2016MAY24/'
-    obj_name = 'xl124'
-    redshift = 0.0875584
-    telluric = 'hip64248'
+    work_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2016/2016B/baj_work_night2/'
+    raw_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2016/2016B/2016OCT22/'
+    obj_name = 'xw546'
+    redshift = 0.1
+    telluric = 'hip216219'
+    prefix = 'tspec'
 
     refspecA = 'SQ0043.fits'
     refspecB = 'SQ0044.fits'
 
-    #finish_combine(work_dir, raw_dir, telluric)
-    #finish_combine(work_dir, raw_dir, obj_name)
+    #finish_combine(work_dir, raw_dir, telluric, prefix)
+    #finish_combine(work_dir, raw_dir, obj_name, prefix)
     #sys.exit(0)
 
     """
@@ -286,5 +287,5 @@ if __name__ == '__main__':
         RUN DISPCOR in IRAF now!
         Check reduction notes.
     """
-    cs.stack_and_finish(work_dir, obj_name, redshift, smooth_width=5.0)
+    cs.stack_and_finish(work_dir, obj_name, redshift, smooth_width=3.0)
     sys.exit(0)
