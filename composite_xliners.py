@@ -71,15 +71,15 @@ def plotspec(dirname_list, fname_list, redshift_list, lam_grid_j, lam_grid_h, la
         fname = fname_list[i]
         redshift = redshift_list[i]
 
-        j_em, h_em, k_em, jflux_em, hflux_em, kflux_em = prep_spectra(dirname, fname, redshift, subtract_continuum=False)
+        j_em, h_em, k_em, jflux_em, hflux_em, kflux_em = prep_spectra(dirname, fname, redshift, subtract_continuum=True)
 
-        if count == 0:
-            j_medarr, j_medval, h_medarr, h_medval, k_medarr, k_medval = rescale(dirname_list, fname_list, redshift_list)
+        #if count == 0:
+        #    j_medarr, j_medval, h_medarr, h_medval, k_medarr, k_medval = rescale(dirname_list, fname_list, redshift_list)
 
-        ## rescale the spectra
-        jflux_em = (jflux_em / j_medarr[i]) * j_medval
-        hflux_em = (hflux_em / h_medarr[i]) * h_medval
-        kflux_em = (kflux_em / k_medarr[i]) * k_medval
+        ### rescale the spectra
+        #jflux_em = (jflux_em / j_medarr[i]) * j_medval
+        #hflux_em = (hflux_em / h_medarr[i]) * h_medval
+        #kflux_em = (kflux_em / k_medarr[i]) * k_medval
 
         # smooth indiv spectra only for plotting purposes
         jflux_em = cs.smoothspectra(jflux_em, width=5.0)
@@ -145,7 +145,7 @@ def plotspec(dirname_list, fname_list, redshift_list, lam_grid_j, lam_grid_h, la
     fig_h.savefig(xliners_dir + 'h_stack_' + method + '.eps', dpi=300, bbox_inches='tight')
     fig_k.savefig(xliners_dir + 'k_stack_' + method + '.eps', dpi=300, bbox_inches='tight')
 
-    #plt.show()
+    plt.show()
 
     return None
 
@@ -370,14 +370,14 @@ if __name__ == '__main__':
                 flux_grid_h[i] = []
                 flux_grid_k[i] = []
 
-            j_medarr, j_medval, h_medarr, h_medval, k_medarr, k_medval = rescale(dirname_list, fname_list, redshift_list)
+            #j_medarr, j_medval, h_medarr, h_medval, k_medarr, k_medval = rescale(dirname_list, fname_list, redshift_list)
 
-        j_em, h_em, k_em, jflux_em, hflux_em, kflux_em = prep_spectra(dirname, fname, curr_z, subtract_continuum=False)
+        j_em, h_em, k_em, jflux_em, hflux_em, kflux_em = prep_spectra(dirname, fname, curr_z, subtract_continuum=True)
 
         # rescale the spectra
-        jflux_em = (jflux_em / j_medarr[u]) * j_medval
-        hflux_em = (hflux_em / h_medarr[u]) * h_medval
-        kflux_em = (kflux_em / k_medarr[u]) * k_medval
+        #jflux_em = (jflux_em / j_medarr[u]) * j_medval
+        #hflux_em = (hflux_em / h_medarr[u]) * h_medval
+        #kflux_em = (kflux_em / k_medarr[u]) * k_medval
 
         # add spec to empty spec which is aligned with the lam grid
         # based on add_spec in grid_coadd.py
@@ -390,12 +390,12 @@ if __name__ == '__main__':
     # take median of all points appended from indiv spectra
     for l in range(len(lam_grid_j)):
 
-        flux_grid_j[l] = np.median(np.concatenate(flux_grid_j[l]).ravel())
-        flux_grid_h[l] = np.median(np.concatenate(flux_grid_h[l]).ravel())
-        flux_grid_k[l] = np.median(np.concatenate(flux_grid_k[l]).ravel())
+        flux_grid_j[l] = np.mean(np.concatenate(flux_grid_j[l]).ravel())
+        flux_grid_h[l] = np.mean(np.concatenate(flux_grid_h[l]).ravel())
+        flux_grid_k[l] = np.mean(np.concatenate(flux_grid_k[l]).ravel())
 
     # plot all spectra and stacks for all three bands
     plotspec(dirname_list, fname_list, redshift_list, lam_grid_j, lam_grid_h, lam_grid_k, \
-        flux_grid_j, flux_grid_h, flux_grid_k, method='rescaled_median')
+        flux_grid_j, flux_grid_h, flux_grid_k, method='contsub_median')
 
     sys.exit(0)

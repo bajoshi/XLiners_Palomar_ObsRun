@@ -12,8 +12,9 @@ import shutil
 import matplotlib.pyplot as plt
 
 home = os.getenv('HOME')  # Does not have a trailing slash at the end
+xliners_dir = home + '/Desktop/ipac/XLiners_Palomar_ObsRun/'
 
-sys.path.append(home + '/Desktop/XLiners_Palomar_ObsRun/')
+sys.path.append(xliners_dir)
 import fix_lacosmic_header as fx
 import telluric_interp_stellar_lines as ti
 import div_obj_telluric as dv
@@ -137,7 +138,7 @@ def copy_from_raw(work_dir, raw_dir, sci_list):
 
     # also copy la_cosmic
     if not os.path.isfile(work_dir + 'la_cosmic.pro'):
-        shutil.copy(raw_dir + 'la_cosmic.pro', work_dir + 'la_cosmic.pro')
+        shutil.copy(xliners_dir + 'la_cosmic.pro', work_dir + 'la_cosmic.pro')
 
     # also copy normalized master flat
     if not os.path.isfile(work_dir + 'master_flatN.fits'):
@@ -243,11 +244,11 @@ if __name__ == '__main__':
     iraf.onedspec(_doprint=0)
 
     # definitions
-    work_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2016/2016B/baj_work_night2/'
-    raw_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2016/2016B/2016OCT22/'
-    obj_name = 'xw546'
-    redshift = 0.1
-    telluric = 'hip216219'
+    work_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2015/baj_work_night1/'
+    raw_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2015/2015_1002/'
+    obj_name = 'xl49'
+    redshift = 0.1647
+    telluric = 'hip98452'
     prefix = 'tspec'
 
     refspecA = 'SQ0043.fits'
@@ -266,8 +267,8 @@ if __name__ == '__main__':
         reference spectra will simply be copied for other objects.
     """
 
-    #run_fix_lacosmic_header_setjd(work_dir, obj_name, refspecA, refspecB)
-    #sys.exit(0)
+    run_fix_lacosmic_header_setjd(work_dir, obj_name, refspecA, refspecB)
+    sys.exit(0)
     
     """
         the first time you reduce data for a night you'll have to run doecslit
