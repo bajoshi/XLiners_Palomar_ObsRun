@@ -192,22 +192,22 @@ def run_fix_lacosmic_header_setjd(work_dir, obj_name, refspecA, refspecB):
     fx.fix_la_cosmic_header(work_dir, filenameB)
 
     # Now run setjd on the median combined files and the flat fields of the ref specs
+    filenameA += '_cleaned.fits'
+    filenameB += '_cleaned.fits'
     iraf.setjd(filenameA, date='DATE', epoch='')
     iraf.setjd(filenameB, date='DATE', epoch='')
 
     # this only needs to be done once
     # i.e. the first time in a night
     # probalby bet to do it in hte IRAF CL
-    """
-        ffA = refspecA.replace('.fits', '_f.fits')
-        ffB = refspecB.replace('.fits', '_f.fits')
-        iraf.setjd(ffA, date='DATE', epoch='')
-        iraf.setjd(ffB, date='DATE', epoch='')
+    ffA = refspecA.replace('.fits', '_f.fits')
+    ffB = refspecB.replace('.fits', '_f.fits')
+    iraf.setjd(ffA, date='DATE', epoch='')
+    iraf.setjd(ffB, date='DATE', epoch='')
 
-        # now fix the headers for the ref specs
-        fx.fix_la_cosmic_header(work_dir, refspecA.split('.')[0], for_setjd=True)
-        fx.fix_la_cosmic_header(work_dir, refspecB.split('.')[0], for_setjd=True)
-    """
+    # now fix the headers for the ref specs
+    fx.fix_la_cosmic_header(work_dir, refspecA.split('.')[0], for_setjd=True)
+    fx.fix_la_cosmic_header(work_dir, refspecB.split('.')[0], for_setjd=True)
 
     return None
 
@@ -244,15 +244,15 @@ if __name__ == '__main__':
     iraf.onedspec(_doprint=0)
 
     # definitions
-    work_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2015/baj_work_night1/'
-    raw_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2015/2015_1002/'
+    work_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2015/baj_work_night2/'
+    raw_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2015/2015_1003/'
     obj_name = 'xl49'
-    redshift = 0.1647
+    redshift = 0.1625
     telluric = 'hip98452'
     prefix = 'tspec'
 
-    refspecA = 'SQ0043.fits'
-    refspecB = 'SQ0044.fits'
+    refspecA = 'tspec0029.fits'
+    refspecB = 'tspec0030.fits'
 
     #finish_combine(work_dir, raw_dir, telluric, prefix)
     #finish_combine(work_dir, raw_dir, obj_name, prefix)
@@ -267,8 +267,8 @@ if __name__ == '__main__':
         reference spectra will simply be copied for other objects.
     """
 
-    run_fix_lacosmic_header_setjd(work_dir, obj_name, refspecA, refspecB)
-    sys.exit(0)
+    #run_fix_lacosmic_header_setjd(work_dir, obj_name, refspecA, refspecB)
+    #sys.exit(0)
     
     """
         the first time you reduce data for a night you'll have to run doecslit

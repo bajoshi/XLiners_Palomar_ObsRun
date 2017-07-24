@@ -106,7 +106,7 @@ def plotspec(dirname_list, fname_list, redshift_list, lam_grid_j, lam_grid_h, la
     ax_j.set_ylim(jflux_low, jflux_high)
     hflux_low, hflux_high = pfs.get_flux_lims(lam_grid_h, flux_grid_h, h_low, h_high, force_zero=False, extension_factor=0.1)
     ax_h.set_ylim(hflux_low, hflux_high)
-    kflux_low, kflux_high = pfs.get_flux_lims(lam_grid_k, flux_grid_k, 17200, 22800, force_zero=False, extension_factor=0.1)
+    kflux_low, kflux_high = pfs.get_flux_lims(lam_grid_k, flux_grid_k, k_low, k_high, force_zero=False, extension_factor=0.1)
     ax_k.set_ylim(kflux_low, kflux_high)
 
     # add vertical lines to show emission lines
@@ -124,8 +124,8 @@ def plotspec(dirname_list, fname_list, redshift_list, lam_grid_j, lam_grid_h, la
     ax_k.axvline(x=br_gamma,  ymin=0.35, ymax=0.65, lw='2', ls='--', color='r')
     ax_k.axvline(x=br_delta,  ymin=0.35, ymax=0.65, lw='2', ls='--', color='r')
 
-    ax_k_ypos1 = kflux_high * 0.84
-    ax_k_ypos2 = kflux_high * 0.81
+    ax_k_ypos1 = kflux_high * 0.85
+    ax_k_ypos2 = kflux_high * 0.75
 
     ax_k.text(x=pas_alpha, y=ax_k_ypos1, s=r'$\mathrm{Pas\ \alpha}$', fontsize=11)
     ax_k.text(x=h2_1_0_s2, y=ax_k_ypos1, s=r'$\mathrm{H_2\ 1-0\, S(2)}$', fontsize=11)
@@ -145,7 +145,7 @@ def plotspec(dirname_list, fname_list, redshift_list, lam_grid_j, lam_grid_h, la
     fig_h.savefig(xliners_dir + 'h_stack_' + method + '.eps', dpi=300, bbox_inches='tight')
     fig_k.savefig(xliners_dir + 'k_stack_' + method + '.eps', dpi=300, bbox_inches='tight')
 
-    plt.show()
+    #plt.show()
 
     return None
 
@@ -277,9 +277,9 @@ def get_lims(restframe=False):
 if __name__ == '__main__':
 
     # definitions
-    obj_name_arr = np.array(['xl53','xl55','xl100','xl124','xl208_total','xl229','xl435','xl692',\
+    obj_name_arr = np.array(['xl49','xl53','xl55','xl100','xl124','xl208_total','xl229','xl435','xl692',\
         'xw3','xw244','xw546','xw588','xw661','xw867'])
-    z_arr = np.array([0.031508, 0.131864, 0.0821633, 0.0875584, 0.172875, 0.149458, 0.0848958, 0.0806426, \
+    z_arr = np.array([0.1647, 0.031508, 0.131864, 0.0821633, 0.0875584, 0.172875, 0.149458, 0.0848958, 0.0806426, \
         0.14795, 0.13154, 0.10394, 0.03701, 0.04733, 0.07083])
     
     comp_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/composite_xliners_spectra/'
@@ -390,12 +390,12 @@ if __name__ == '__main__':
     # take median of all points appended from indiv spectra
     for l in range(len(lam_grid_j)):
 
-        flux_grid_j[l] = np.mean(np.concatenate(flux_grid_j[l]).ravel())
-        flux_grid_h[l] = np.mean(np.concatenate(flux_grid_h[l]).ravel())
-        flux_grid_k[l] = np.mean(np.concatenate(flux_grid_k[l]).ravel())
+        flux_grid_j[l] = np.median(np.concatenate(flux_grid_j[l]).ravel())
+        flux_grid_h[l] = np.median(np.concatenate(flux_grid_h[l]).ravel())
+        flux_grid_k[l] = np.median(np.concatenate(flux_grid_k[l]).ravel())
 
     # plot all spectra and stacks for all three bands
     plotspec(dirname_list, fname_list, redshift_list, lam_grid_j, lam_grid_h, lam_grid_k, \
-        flux_grid_j, flux_grid_h, flux_grid_k, method='contsub_median')
+        flux_grid_j, flux_grid_h, flux_grid_k, method='contsub_median_z')
 
     sys.exit(0)

@@ -61,8 +61,8 @@ def plotspec(work_dir, wav, spec, obj_name, band, slitpos, redshift):
         ax.set_ylim(hflux_low, hflux_high)
 
     elif band == 'k':
-        k_low = 19500
-        k_high = 24100
+        k_low = 19700
+        k_high = 24000
         ax.set_xlim(19000, k_high)
         kflux_low, kflux_high = get_flux_lims(wav, spec, k_low, k_high)
         ax.set_ylim(kflux_low, kflux_high)

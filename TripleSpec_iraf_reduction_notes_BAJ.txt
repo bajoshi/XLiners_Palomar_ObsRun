@@ -272,28 +272,28 @@
 
     > epar apedit
     > apedit.width = 5.
-    > apedit.nsum = 5.
+    > apedit.nsum = 10
     > apedit.threso = 3.
 
     > epar apfind
-    > apfind.nsum = 5.
+    > apfind.nsum = 10
     > apfind.nfind = 3
-    > apfind.minsep = 5.
+    > apfind.minsep = 4.
     > apfind.maxsep = 200.
 
     > epar apresize
-    > apresize.nsum = 5.
+    > apresize.nsum = 10
     > apresize.ylevel = 0.5
     > apresize.peak = yes
     > apresize.bkg = no
 
     > epar aptrace
-    > aptrace.nsum = 5.
+    > aptrace.nsum = 10
     > aptrace.functio = spline3
     > aptrace.order = 1.
 
     > epar apflatten
-    > apflatten.nsum = 5.
+    > apflatten.nsum = 10
     > apflatten.thresho = 5.
     > apflatten.pfit = fit1d
 
@@ -359,6 +359,10 @@ To go to next order : "k"
 
 When enough lines are identified, type "l" to load the line catalog and "a", then "f". 
 "q" when identification is finished
+
+*** Most times this is when you'll finish doecslit. ***
+-------------------------------------------------------
+
 #optional: type "y" to Automatically find "maxfeatures" strongest peaks and identify them. 
 #          "u" to manually enter the wavelength in A.
 #=======================================
