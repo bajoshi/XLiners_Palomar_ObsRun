@@ -179,7 +179,7 @@ def finish_combine(work_dir, raw_dir, obj_name, prefix):
 
     return None
 
-def run_fix_lacosmic_header_setjd(work_dir, obj_name, refspecA, refspecB):
+def run_fix_lacosmic_header_setjd(work_dir, obj_name, refspecA, refspecB, setjd_ref=False):
  
     # change iraf working directory
     iraf.cd(work_dir)
@@ -200,14 +200,15 @@ def run_fix_lacosmic_header_setjd(work_dir, obj_name, refspecA, refspecB):
     # this only needs to be done once
     # i.e. the first time in a night
     # probalby bet to do it in hte IRAF CL
-    ffA = refspecA.replace('.fits', '_f.fits')
-    ffB = refspecB.replace('.fits', '_f.fits')
-    iraf.setjd(ffA, date='DATE', epoch='')
-    iraf.setjd(ffB, date='DATE', epoch='')
+    if setjd_ref:
+        ffA = refspecA.replace('.fits', '_f.fits')
+        ffB = refspecB.replace('.fits', '_f.fits')
+        iraf.setjd(ffA, date='DATE', epoch='')
+        iraf.setjd(ffB, date='DATE', epoch='')
 
-    # now fix the headers for the ref specs
-    fx.fix_la_cosmic_header(work_dir, refspecA.split('.')[0], for_setjd=True)
-    fx.fix_la_cosmic_header(work_dir, refspecB.split('.')[0], for_setjd=True)
+        # now fix the headers for the ref specs
+        fx.fix_la_cosmic_header(work_dir, refspecA.split('.')[0], for_setjd=True)
+        fx.fix_la_cosmic_header(work_dir, refspecB.split('.')[0], for_setjd=True)
 
     return None
 
@@ -244,15 +245,15 @@ if __name__ == '__main__':
     iraf.onedspec(_doprint=0)
 
     # definitions
-    work_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2015/baj_work_night2/'
-    raw_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2015/2015_1003/'
-    obj_name = 'xl49'
-    redshift = 0.1625
-    telluric = 'hip98452'
-    prefix = 'tspec'
+    work_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2009/work/'
+    raw_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2009/20090812/'
+    obj_name = 's3peak'
+    redshift = 0.0225
+    telluric = 'hd203856'
+    prefix = 'SQ'
 
-    refspecA = 'tspec0029.fits'
-    refspecB = 'tspec0030.fits'
+    refspecA = 'SQ0043.fits'
+    refspecB = 'SQ0044.fits'
 
     #finish_combine(work_dir, raw_dir, telluric, prefix)
     #finish_combine(work_dir, raw_dir, obj_name, prefix)

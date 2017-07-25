@@ -45,6 +45,69 @@ def set_minorticks(ax):
 
     return ax
 
+def mark_emission_lines_kband(kflux_high, ax_k):
+
+    pas_alpha = 18751  # air
+    h2_1_0_s3 = 19576
+    h2_1_0_s2 = 20338
+    h2_1_0_s1 = 21218
+    br_gamma = 21655  # air
+    br_delta = 19446  # air
+
+    ax_k.axvline(x=pas_alpha, ymin=0.35, ymax=0.65, lw='2', ls='--', color='r')
+    ax_k.axvline(x=h2_1_0_s1, ymin=0.35, ymax=0.65, lw='2', ls='--', color='r')
+    ax_k.axvline(x=h2_1_0_s2, ymin=0.35, ymax=0.65, lw='2', ls='--', color='r')
+    ax_k.axvline(x=h2_1_0_s3, ymin=0.35, ymax=0.65, lw='2', ls='--', color='r')
+    ax_k.axvline(x=br_gamma,  ymin=0.35, ymax=0.65, lw='2', ls='--', color='r')
+    ax_k.axvline(x=br_delta,  ymin=0.35, ymax=0.65, lw='2', ls='--', color='r')
+
+    ax_k_ypos1 = kflux_high * 0.85
+    ax_k_ypos2 = kflux_high * 0.75
+
+    ax_k.text(x=pas_alpha, y=ax_k_ypos1, s=r'$\mathrm{Pas\ \alpha}$', fontsize=11)
+    ax_k.text(x=h2_1_0_s2, y=ax_k_ypos1, s=r'$\mathrm{H_2\ 1-0\, S(2)}$', fontsize=11)
+    ax_k.text(x=h2_1_0_s3, y=ax_k_ypos2, s=r'$\mathrm{H_2\ 1-0\, S(3)}$', fontsize=11)
+
+    if h2_1_0_s1 < k_high:
+        ax_k.text(x=h2_1_0_s1, y=ax_k_ypos2, s=r'$\mathrm{H_2\ 1-0\, S(1)}$', fontsize=11)
+
+    if br_gamma < k_high:
+        ax_k.text(x=br_gamma, y=ax_k_ypos1, s=r'$\mathrm{Br\ \gamma}$', fontsize=11)
+
+    if br_delta < k_high:
+        ax_k.text(x=br_delta, y=ax_k_ypos1, s=r'$\mathrm{Br\ \delta}$', fontsize=11)
+
+    return ax_k
+
+def mark_emission_lines_jband(jflux_high, ax_j):
+
+    pas_beta = 12822
+    feii = 12570
+
+    ax_j.axvline(x=pas_beta, ymin=0.35, ymax=0.65, lw='2', ls='--', color='r')
+    ax_j.axvline(x=feii, ymin=0.35, ymax=0.65, lw='2', ls='--', color='r')
+
+    ax_j_ypos1 = jflux_high * 0.65
+    ax_j_ypos2 = jflux_high * 0.45
+
+    ax_j.text(x=pas_beta, y=ax_j_ypos1, s=r'$\mathrm{Pas\ \beta}$', fontsize=11)
+    ax_j.text(x=feii, y=ax_j_ypos1, s=r'$\mathrm{[FeII]}$', fontsize=11)
+
+    return ax_j
+
+def mark_emission_lines_hband(hflux_high, ax_h):
+
+    feii = 16436
+
+    ax_h.axvline(x=feii, ymin=0.35, ymax=0.65, lw='2', ls='--', color='r')
+
+    ax_h_ypos1 = hflux_high * 0.65
+    ax_h_ypos2 = hflux_high * 0.45
+
+    ax_h.text(x=feii, y=ax_h_ypos1, s=r'$\mathrm{[FeII]}$', fontsize=11)
+
+    return ax_h
+
 def plotspec(dirname_list, fname_list, redshift_list, lam_grid_j, lam_grid_h, lam_grid_k, \
     flux_grid_j, flux_grid_h, flux_grid_k, method):
 
@@ -71,15 +134,20 @@ def plotspec(dirname_list, fname_list, redshift_list, lam_grid_j, lam_grid_h, la
         fname = fname_list[i]
         redshift = redshift_list[i]
 
-        j_em, h_em, k_em, jflux_em, hflux_em, kflux_em = prep_spectra(dirname, fname, redshift, subtract_continuum=True)
+        if count == 0:
+            if continuum_flag == 'rescale':
+                j_medarr, j_medval, h_medarr, h_medval, k_medarr, k_medval = rescale(dirname_list, fname_list, redshift_list)
 
-        #if count == 0:
-        #    j_medarr, j_medval, h_medarr, h_medval, k_medarr, k_medval = rescale(dirname_list, fname_list, redshift_list)
+        # prepare spectra based on user given choice
+        if continuum_flag == 'contsub':
+            j_em, h_em, k_em, jflux_em, hflux_em, kflux_em = prep_spectra(dirname, fname, redshift, subtract_continuum=True)
+        elif continuum_flag == 'rescale':
+            j_em, h_em, k_em, jflux_em, hflux_em, kflux_em = prep_spectra(dirname, fname, redshift, subtract_continuum=False)
 
-        ### rescale the spectra
-        #jflux_em = (jflux_em / j_medarr[i]) * j_medval
-        #hflux_em = (hflux_em / h_medarr[i]) * h_medval
-        #kflux_em = (kflux_em / k_medarr[i]) * k_medval
+            # rescale the spectra
+            jflux_em = (jflux_em / j_medarr[u]) * j_medval
+            hflux_em = (hflux_em / h_medarr[u]) * h_medval
+            kflux_em = (kflux_em / k_medarr[u]) * k_medval
 
         # smooth indiv spectra only for plotting purposes
         jflux_em = cs.smoothspectra(jflux_em, width=5.0)
@@ -110,35 +178,9 @@ def plotspec(dirname_list, fname_list, redshift_list, lam_grid_j, lam_grid_h, la
     ax_k.set_ylim(kflux_low, kflux_high)
 
     # add vertical lines to show emission lines
-    pas_alpha = 18751  # air
-    h2_1_0_s3 = 19576
-    h2_1_0_s2 = 20338
-    h2_1_0_s1 = 21218
-    br_gamma = 21655  # air
-    br_delta = 19446  # air
-
-    ax_k.axvline(x=pas_alpha, ymin=0.35, ymax=0.65, lw='2', ls='--', color='r')
-    ax_k.axvline(x=h2_1_0_s1, ymin=0.35, ymax=0.65, lw='2', ls='--', color='r')
-    ax_k.axvline(x=h2_1_0_s2, ymin=0.35, ymax=0.65, lw='2', ls='--', color='r')
-    ax_k.axvline(x=h2_1_0_s3, ymin=0.35, ymax=0.65, lw='2', ls='--', color='r')
-    ax_k.axvline(x=br_gamma,  ymin=0.35, ymax=0.65, lw='2', ls='--', color='r')
-    ax_k.axvline(x=br_delta,  ymin=0.35, ymax=0.65, lw='2', ls='--', color='r')
-
-    ax_k_ypos1 = kflux_high * 0.85
-    ax_k_ypos2 = kflux_high * 0.75
-
-    ax_k.text(x=pas_alpha, y=ax_k_ypos1, s=r'$\mathrm{Pas\ \alpha}$', fontsize=11)
-    ax_k.text(x=h2_1_0_s2, y=ax_k_ypos1, s=r'$\mathrm{H_2\ 1-0\, S(2)}$', fontsize=11)
-    ax_k.text(x=h2_1_0_s3, y=ax_k_ypos2, s=r'$\mathrm{H_2\ 1-0\, S(3)}$', fontsize=11)
-
-    if h2_1_0_s1 < k_high:
-        ax_k.text(x=h2_1_0_s1, y=ax_k_ypos2, s=r'$\mathrm{H_2\ 1-0\, S(1)}$', fontsize=11)
-
-    if br_gamma < k_high:
-        ax_k.text(x=br_gamma, y=ax_k_ypos1, s=r'$\mathrm{Br\ \gamma}$', fontsize=11)
-
-    if br_delta < k_high:
-        ax_k.text(x=br_delta, y=ax_k_ypos1, s=r'$\mathrm{Br\ \delta}$', fontsize=11)
+    ax_j = mark_emission_lines_jband(jflux_high, ax_j)
+    ax_h = mark_emission_lines_hband(hflux_high, ax_h)
+    ax_k = mark_emission_lines_kband(kflux_high, ax_k)
 
     # save figure
     fig_j.savefig(xliners_dir + 'j_stack_' + method + '.eps', dpi=300, bbox_inches='tight')
@@ -262,27 +304,72 @@ def get_lims(restframe=False):
     k_low = 19500
     k_high = 24100
 
+    # uncomment if you want to see the entire grid
+    # right now its only showing the region with important lines
+    #if restframe:
+    #    j_low = 9800
+    #    j_high = 13200
+
+    #    h_low = 12800
+    #    h_high = 17400
+
+    #    k_low = 16800
+    #    k_high = 23400
+
     if restframe:
-        j_low = 9800
-        j_high = 13200
+        j_low = 11000
+        j_high = 13000
 
-        h_low = 12800
-        h_high = 17400
+        h_low = 14200
+        h_high = 17000
 
-        k_low = 16800
-        k_high = 23400
+        k_low = 18600
+        k_high = 23000
 
     return j_low, j_high, h_low, h_high, k_low, k_high
 
 if __name__ == '__main__':
 
+    # read in user command line options
+    # sys.argv[0] is the name of hte script
+    try:
+        continuum_flag = sys.argv[1]
+        combine_flag = sys.argv[2]
+
+    except IndexError as e:
+        print e
+        print "This code needs a method (rescaling all continua or"
+        print "subtracting individual continua before combining) "
+        print "to be set for the individual continua."
+        print "Keyword options are -- rescale or contsub"
+        print "It also needs a combining method -- median or mean."
+        print "E.g. >> python composite_xliners.py rescale mean"
+        sys.exit(0)
+
     # definitions
     obj_name_arr = np.array(['xl49','xl53','xl55','xl100','xl124','xl208_total','xl229','xl435','xl692',\
-        'xw3','xw244','xw546','xw588','xw661','xw867'])
+       'xw3','xw244','xw546','xw588','xw661','xw867'])
     z_arr = np.array([0.1647, 0.031508, 0.131864, 0.0821633, 0.0875584, 0.172875, 0.149458, 0.0848958, 0.0806426, \
-        0.14795, 0.13154, 0.10394, 0.03701, 0.04733, 0.07083])
-    
-    comp_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/composite_xliners_spectra/'
+       0.14795, 0.13154, 0.10394, 0.03701, 0.04733, 0.07083])
+
+    ## for LOW Z stack
+    low_z_stack = True
+    low_z_lim = 0.05
+    if low_z_stack:
+
+        z_list = []
+        obj_list = []
+        for v in range(len(obj_name_arr)):
+            
+            if z_arr[v] <= low_z_lim:
+                #print z_arr[v], obj_name_arr[v]
+                z_list.append(z_arr[v])
+                obj_list.append(obj_name_arr[v])
+
+        z_arr = np.array(z_list)
+        obj_name_arr = np.array(obj_list)
+
+    comp_dir = xliners_dir + 'composite_xliners_spectra/'
 
     # create lambda and flux grid for all bands
     # observed frame limits
@@ -304,8 +391,7 @@ if __name__ == '__main__':
 
     # rest frame grids
     # I'm using linspace because that will include the endpoints
-    # I chose to have 1000 points by trial and error
-    # this gives me about ... points per bin.
+    # I chose to have 1500 points by trial and error
     total_lam_grid_elem = 1500
     lam_grid_j = np.linspace(j_grid_low, j_grid_high, num=total_lam_grid_elem)
     lam_grid_h = np.linspace(h_grid_low, h_grid_high, num=total_lam_grid_elem)
@@ -336,15 +422,16 @@ if __name__ == '__main__':
             if curr_obj == 'xl208':
                 curr_obj = 'xl208_total'
 
-            curr_z = z_arr[np.where(obj_name_arr == curr_obj)[0]]
+            if curr_obj in obj_name_arr:
+                curr_z = z_arr[np.where(obj_name_arr == curr_obj)[0]]
 
-            # skipping first dir because its the mac default .DS_Store directory
-            if fname == '.DS_Store':
-                continue
+                # skipping first dir because its the mac default .DS_Store directory
+                if fname == '.DS_Store':
+                    continue
 
-            dirname_list.append(dirname)
-            fname_list.append(fname)
-            redshift_list.append(curr_z[0])
+                dirname_list.append(dirname)
+                fname_list.append(fname)
+                redshift_list.append(curr_z[0])
 
     # now actually looping over objects to stack
     count = 0
@@ -353,12 +440,6 @@ if __name__ == '__main__':
         dirname = dirname_list[u]
         fname = fname_list[u]
         curr_z = redshift_list[u]
-
-        #night = dirname.split('/')[-1]
-        #curr_obj = fname.split('_')[0]
-
-        #if curr_obj == 'xl208':
-        #    curr_obj = 'xl208_total'
 
         # set up spectrum grid 
         # only needs to be done once 
@@ -370,14 +451,19 @@ if __name__ == '__main__':
                 flux_grid_h[i] = []
                 flux_grid_k[i] = []
 
-            #j_medarr, j_medval, h_medarr, h_medval, k_medarr, k_medval = rescale(dirname_list, fname_list, redshift_list)
+            if continuum_flag == 'rescale':
+                j_medarr, j_medval, h_medarr, h_medval, k_medarr, k_medval = rescale(dirname_list, fname_list, redshift_list)
+        
+        # prepare spectra based on user given choice
+        if continuum_flag == 'contsub':
+            j_em, h_em, k_em, jflux_em, hflux_em, kflux_em = prep_spectra(dirname, fname, curr_z, subtract_continuum=True)
+        elif continuum_flag == 'rescale':
+            j_em, h_em, k_em, jflux_em, hflux_em, kflux_em = prep_spectra(dirname, fname, curr_z, subtract_continuum=False)
 
-        j_em, h_em, k_em, jflux_em, hflux_em, kflux_em = prep_spectra(dirname, fname, curr_z, subtract_continuum=True)
-
-        # rescale the spectra
-        #jflux_em = (jflux_em / j_medarr[u]) * j_medval
-        #hflux_em = (hflux_em / h_medarr[u]) * h_medval
-        #kflux_em = (kflux_em / k_medarr[u]) * k_medval
+            # rescale the spectra
+            jflux_em = (jflux_em / j_medarr[u]) * j_medval
+            hflux_em = (hflux_em / h_medarr[u]) * h_medval
+            kflux_em = (kflux_em / k_medarr[u]) * k_medval
 
         # add spec to empty spec which is aligned with the lam grid
         # based on add_spec in grid_coadd.py
@@ -388,14 +474,28 @@ if __name__ == '__main__':
         count += 1
 
     # take median of all points appended from indiv spectra
-    for l in range(len(lam_grid_j)):
+    if combine_flag == 'median':
 
-        flux_grid_j[l] = np.median(np.concatenate(flux_grid_j[l]).ravel())
-        flux_grid_h[l] = np.median(np.concatenate(flux_grid_h[l]).ravel())
-        flux_grid_k[l] = np.median(np.concatenate(flux_grid_k[l]).ravel())
+        for l in range(len(lam_grid_j)):
+
+            flux_grid_j[l] = np.median(np.concatenate(flux_grid_j[l]).ravel())
+            flux_grid_h[l] = np.median(np.concatenate(flux_grid_h[l]).ravel())
+            flux_grid_k[l] = np.median(np.concatenate(flux_grid_k[l]).ravel())
+    
+    elif combine_flag == 'mean':
+
+        for l in range(len(lam_grid_j)):
+
+            flux_grid_j[l] = np.mean(np.concatenate(flux_grid_j[l]).ravel())
+            flux_grid_h[l] = np.mean(np.concatenate(flux_grid_h[l]).ravel())
+            flux_grid_k[l] = np.mean(np.concatenate(flux_grid_k[l]).ravel())
 
     # plot all spectra and stacks for all three bands
-    plotspec(dirname_list, fname_list, redshift_list, lam_grid_j, lam_grid_h, lam_grid_k, \
-        flux_grid_j, flux_grid_h, flux_grid_k, method='contsub_median_z')
+    if low_z_stack:
+        plotspec(dirname_list, fname_list, redshift_list, lam_grid_j, lam_grid_h, lam_grid_k, \
+            flux_grid_j, flux_grid_h, flux_grid_k, method=continuum_flag + '_' + combine_flag + '_' + str(low_z_lim).replace('.','p'))
+    else:
+        plotspec(dirname_list, fname_list, redshift_list, lam_grid_j, lam_grid_h, lam_grid_k, \
+            flux_grid_j, flux_grid_h, flux_grid_k, method=continuum_flag + '_' + combine_flag)
 
     sys.exit(0)

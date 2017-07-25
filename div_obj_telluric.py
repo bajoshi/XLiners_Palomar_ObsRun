@@ -46,11 +46,13 @@ def div_obj(work_dir, obj_name, tell_name, slitpos, refspec):
 
 if __name__ == '__main__':
 
-    tell_name = 'hip64248'
-    obj_name = 'xl53'
-    slitpos = 'BA'
+    tell_name = 'hd203856'
+    obj_name = 'sqas1'
+    slitpos = 'AB'
+    refspec = 'SQ0043.fits'
 
-    ext_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/test/'
-    date = ''
+    ext_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2009/work/'
+
+    div_obj(ext_dir, obj_name, tell_name, slitpos, refspec)
 
     sys.exit(0)

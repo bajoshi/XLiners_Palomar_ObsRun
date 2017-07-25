@@ -164,13 +164,13 @@ def do_all(work_dir, tell_name, slitpos):
 
 if __name__ == '__main__':
 
-    slitpos = 'BA'
-    ext_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/test/'
+    slitpos = 'AB'
+    ext_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2009/work/'
     date = ''
     
     # ------------- first telluric --------------- #
-    tell_name = 'hip64248'
-    do_all(ext_dir, date, tell_name, slitpos)
+    tell_name = 'hd203856'
+    do_all(ext_dir, tell_name, slitpos)
 
     # ------------- second telluric --------------- #
     #tell_name = 'hip65280'

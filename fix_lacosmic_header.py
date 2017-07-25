@@ -22,7 +22,9 @@ if __name__ == '__main__':
 
     # function names tell you what the functions do. Uncomment the line you want.
     # The two functions will be combined at some point
+    wd = '/Volumes/Bhavins_backup/ipac/Palomar_data/2009/work/'
+    filename = 'SQ0083'
 
-    fix_la_cosmic_header()
+    fix_la_cosmic_header(wd, filename, for_setjd=True)
     
     sys.exit(0)

@@ -2,6 +2,7 @@ from __future__ import division
 
 from astropy.io import fits
 import numpy as np
+from astropy.convolution import convolve, Gaussian1DKernel
 
 import os
 import sys
@@ -22,7 +23,7 @@ def get_flux_lims(wav, spec, wav_low, wav_high, force_zero=True, extension_facto
 
     if force_zero:
         if low_flux_lim < 0.0:
-            low_flux_lim = 0.0
+            low_flux_lim -= extension_factor * high_flux_lim
 
     return low_flux_lim, high_flux_lim 
 
@@ -79,7 +80,7 @@ def plotspec(work_dir, wav, spec, obj_name, band, slitpos, redshift):
         # this will allow you to transform any (xp, yp) axes point to
         # data coordinates. I don't need these lines for now but htey're useful.
 
-        ax_ypos1 = kflux_high * 0.84
+        ax_ypos1 = kflux_high * 0.85
         ax_ypos2 = kflux_high * 0.81
 
         ax.text(x=pas_alpha * (1 + redshift), y=ax_ypos1, s=r'$\mathrm{Pas\ \alpha}$', fontsize=10)
@@ -103,21 +104,19 @@ def plotspec(work_dir, wav, spec, obj_name, band, slitpos, redshift):
     ax.tick_params('both', width=1, length=4.7, which='major')
     ax.grid(True)
 
-    fig.savefig(work_dir + obj_name + '_' + slitpos + '_' + band + '_tellinterp.png', dpi=300, bbox_inches='tight')
+    fig.savefig(work_dir + obj_name + '_' + slitpos + '_' + band + '_tellinterp_smooth.png', dpi=300, bbox_inches='tight')
 
     return None
 
 if __name__ == '__main__':
     
-    obj_name = 'xl53'
-    slitpos = 'BA'
-    redshift = 0.031508
+    obj_name = 'sqas1'
+    slitpos = 'AB'
+    redshift = 0.0225
 
-    ext_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/test/'
-    date = ''
+    ext_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2009/work/'
 
-    obj_filename = ext_dir + date + obj_name + '_'\
-     + slitpos + '_tellinterp_dispcor.fits'
+    obj_filename = ext_dir + obj_name + '_' + slitpos + '_tellinterp_dispcor.fits'
 
     # give it the filename which has the dispersion corrected spectra
     obj_spec = fits.open(obj_filename)
@@ -146,8 +145,8 @@ if __name__ == '__main__':
     kwav = [kstart+i*delta_k for i in range(2048)]
     kspec = obj_spec[0].data[0,2]
 
-    plotspec(ext_dir, date, jwav, jspec, obj_name, 'j', slitpos, redshift)
-    plotspec(ext_dir, date, hwav, hspec, obj_name, 'h', slitpos, redshift)
-    plotspec(ext_dir, date, kwav, kspec, obj_name, 'k', slitpos, redshift)
+    plotspec(ext_dir, jwav, jspec, obj_name, 'j', slitpos, redshift)
+    plotspec(ext_dir, hwav, hspec, obj_name, 'h', slitpos, redshift)
+    plotspec(ext_dir, kwav, kspec, obj_name, 'k', slitpos, redshift)
 
     sys.exit(0)
