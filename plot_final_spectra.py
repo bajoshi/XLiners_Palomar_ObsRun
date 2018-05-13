@@ -9,6 +9,8 @@ import sys
 
 import matplotlib.pyplot as plt 
 
+home = os.getenv('HOME')
+
 def get_flux_lims(wav, spec, wav_low, wav_high, force_zero=True, extension_factor=0.05):
 
     wav = np.asarray(wav)
@@ -33,7 +35,7 @@ def plotspec(work_dir, wav, spec, obj_name, band, slitpos, redshift):
     ax = fig.add_subplot(111)
 
     ax.set_xlabel(r'$\mathrm{\lambda\ [\AA]}$')
-    ax.set_ylabel(r'$\mathrm{f\ [arbitrary scale]}$')
+    ax.set_ylabel(r'$\mathrm{f\ [arbitrary\ scale]}$')
 
     ax.plot(wav, spec, color='k')
 
@@ -110,11 +112,11 @@ def plotspec(work_dir, wav, spec, obj_name, band, slitpos, redshift):
 
 if __name__ == '__main__':
     
-    obj_name = 'sqas1'
-    slitpos = 'AB'
+    obj_name = 'xl49'
+    slitpos = 'BA'
     redshift = 0.0225
 
-    ext_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2009/work/'
+    ext_dir = home + '/Desktop/ipac/composite_xliners_spectra/20151022/'
 
     obj_filename = ext_dir + obj_name + '_' + slitpos + '_tellinterp_dispcor.fits'
 

@@ -154,9 +154,11 @@ def plotspec(dirname_list, fname_list, redshift_list, lam_grid_j, lam_grid_h, la
         hflux_em = cs.smoothspectra(hflux_em, width=5.0)
         kflux_em = cs.smoothspectra(kflux_em, width=5.0)
 
-        ax_j.plot(j_em, jflux_em, ls='-', linewidth=1, color='lightgray')
-        ax_h.plot(h_em, hflux_em, ls='-', linewidth=1, color='lightgray')
-        ax_k.plot(k_em, kflux_em, ls='-', linewidth=1, color='lightgray')
+        plot_indiv = False
+        if plot_indiv:
+            ax_j.plot(j_em, jflux_em, ls='-', linewidth=1, color='lightgray')
+            ax_h.plot(h_em, hflux_em, ls='-', linewidth=1, color='lightgray')
+            ax_k.plot(k_em, kflux_em, ls='-', linewidth=1, color='lightgray')
 
         count += 1
 
@@ -170,11 +172,18 @@ def plotspec(dirname_list, fname_list, redshift_list, lam_grid_j, lam_grid_h, la
     ax_h.set_xlim(h_low, h_high)
     ax_k.set_xlim(k_low, k_high)
 
-    jflux_low, jflux_high = pfs.get_flux_lims(lam_grid_j, flux_grid_j, j_low, j_high, force_zero=False, extension_factor=0.1)
+    # Get limits for plotting
+    if 'median' in method:
+        jflux_low, jflux_high = pfs.get_flux_lims(lam_grid_j, flux_grid_j, j_low, j_high, force_zero=False, extension_factor=0.1)
+        hflux_low, hflux_high = pfs.get_flux_lims(lam_grid_h, flux_grid_h, h_low, h_high, force_zero=False, extension_factor=0.1)
+        kflux_low, kflux_high = pfs.get_flux_lims(lam_grid_k, flux_grid_k, k_low, k_high, force_zero=False, extension_factor=0.1)
+    elif 'mean' in method:
+        jflux_low, jflux_high = -30, 40
+        hflux_low, hflux_high = -60, 70
+        kflux_low, kflux_high = -50, 80
+
     ax_j.set_ylim(jflux_low, jflux_high)
-    hflux_low, hflux_high = pfs.get_flux_lims(lam_grid_h, flux_grid_h, h_low, h_high, force_zero=False, extension_factor=0.1)
     ax_h.set_ylim(hflux_low, hflux_high)
-    kflux_low, kflux_high = pfs.get_flux_lims(lam_grid_k, flux_grid_k, k_low, k_high, force_zero=False, extension_factor=0.1)
     ax_k.set_ylim(kflux_low, kflux_high)
 
     # add vertical lines to show emission lines
@@ -183,9 +192,12 @@ def plotspec(dirname_list, fname_list, redshift_list, lam_grid_j, lam_grid_h, la
     ax_k = mark_emission_lines_kband(kflux_high, ax_k)
 
     # save figure
-    fig_j.savefig(xliners_dir + 'j_stack_' + method + '.eps', dpi=300, bbox_inches='tight')
-    fig_h.savefig(xliners_dir + 'h_stack_' + method + '.eps', dpi=300, bbox_inches='tight')
-    fig_k.savefig(xliners_dir + 'k_stack_' + method + '.eps', dpi=300, bbox_inches='tight')
+    fig_j.savefig(home + '/Desktop/ipac/composite_and_indiv_spec_plots/' \
+        + 'j_stack_' + method + '.eps', dpi=300, bbox_inches='tight')
+    fig_h.savefig(home + '/Desktop/ipac/composite_and_indiv_spec_plots/' \
+        + 'h_stack_' + method + '.eps', dpi=300, bbox_inches='tight')
+    fig_k.savefig(home + '/Desktop/ipac/composite_and_indiv_spec_plots/' \
+        + 'k_stack_' + method + '.eps', dpi=300, bbox_inches='tight')
 
     #plt.show()
 
@@ -279,6 +291,9 @@ def prep_spectra(dirname, fname, redshift, subtract_continuum=True):
     hflux_em = hspec * (1 + redshift)
     kflux_em = kspec * (1 + redshift)
 
+    # Close fits file
+    h.close()
+
     return j_em, h_em, k_em, jflux_em, hflux_em, kflux_em
 
 def check_polynomial_fit(poly, wav, spec):
@@ -347,14 +362,16 @@ if __name__ == '__main__':
         sys.exit(0)
 
     # definitions
-    obj_name_arr = np.array(['xl49','xl53','xl55','xl100','xl124','xl208_total','xl229','xl435','xl692',\
-       'xw3','xw244','xw546','xw588','xw661','xw867'])
-    z_arr = np.array([0.1647, 0.031508, 0.131864, 0.0821633, 0.0875584, 0.172875, 0.149458, 0.0848958, 0.0806426, \
-       0.14795, 0.13154, 0.10394, 0.03701, 0.04733, 0.07083])
+    obj_name_arr = np.array(['xl49','xl53','xl55','xl100','xl124',\
+    'xl208_total','xl229','xl435','xl692',\
+    'xw3','xw244','xw546','xw588','xw661','xw867'])
+    z_arr = np.array([0.1647, 0.031508, 0.131864, 0.0821633, 0.0875584,\
+    0.172875, 0.149458, 0.0848958, 0.0806426, \
+    0.14795, 0.13154, 0.10394, 0.03701, 0.04733, 0.07083])
 
     ## for LOW Z stack
     low_z_stack = True
-    low_z_lim = 0.05
+    low_z_lim = 0.2
     if low_z_stack:
 
         z_list = []
@@ -369,7 +386,7 @@ if __name__ == '__main__':
         z_arr = np.array(z_list)
         obj_name_arr = np.array(obj_list)
 
-    comp_dir = xliners_dir + 'composite_xliners_spectra/'
+    comp_dir = home + '/Desktop/ipac/composite_xliners_spectra/'
 
     # create lambda and flux grid for all bands
     # observed frame limits
@@ -473,7 +490,7 @@ if __name__ == '__main__':
 
         count += 1
 
-    # take median of all points appended from indiv spectra
+    # take median or mean of all points appended from indiv spectra
     if combine_flag == 'median':
 
         for l in range(len(lam_grid_j)):

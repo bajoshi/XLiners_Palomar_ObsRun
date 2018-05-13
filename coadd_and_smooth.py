@@ -8,6 +8,11 @@ import os
 import sys
 
 import matplotlib.pyplot as plt
+
+home = os.getenv('HOME')
+xliners_dir = home + '/Desktop/ipac/XLiners_Palomar_ObsRun/'
+
+sys.path.append(xliners_dir)
 import plot_final_spectra as pfs
 
 def get_spectra(obj_hdu):
@@ -40,7 +45,7 @@ def get_spectra(obj_hdu):
 
 def smoothspectra(spec, width=1):
 
-    gauss_kernel = Gaussian1DKernel(width)  # width=1 is the same as no smoothing
+    gauss_kernel = Gaussian1DKernel(width)
     smoothed_spec = convolve(spec, gauss_kernel)
 
     return smoothed_spec
@@ -111,17 +116,21 @@ def stack_and_finish(work_dir, obj_name, redshift, smooth_width):
         pfs.plotspec(work_dir, hwav_grid, h_coadd_smooth, obj_name, 'h', 'coadd', redshift)
         pfs.plotspec(work_dir, kwav_grid, k_coadd_smooth, obj_name, 'k', 'coadd', redshift)
 
+    obj_spec_ab.close()
+    obj_spec_ba.close()
+
     return None
 
 if __name__ == '__main__':
 
     # read in fits file and get wav calibrated spectra
     # give it the filename which has the dispersion corrected spectra
-    obj_name = 'xl435'
-    slitpos = 'AB'
-    redshift = 0.0848958
+    obj_name = 'xl692'
+    redshift = 0.0806426
 
-    ext_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/test/'
+    ext_dir = home + '/Desktop/ipac/composite_xliners_spectra/20170511/'
     date = ''
+
+    stack_and_finish(ext_dir, obj_name, redshift, 2.0)
 
     sys.exit(0)
