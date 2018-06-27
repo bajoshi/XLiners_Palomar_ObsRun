@@ -245,15 +245,15 @@ if __name__ == '__main__':
     iraf.onedspec(_doprint=0)
 
     # definitions
-    work_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2009/work/'
-    raw_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2009/20090812/'
-    obj_name = 's3peak'
+    work_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2016/2016A/P2016A/fluxcal_workdir2018_2016Anight2/'
+    raw_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2016/2016A/P2016A/night2_2016MAY24/'
+    obj_name = 'hd216219'
     redshift = 0.0225
-    telluric = 'hd203856'
-    prefix = 'SQ'
+    telluric = 'hip64248'
+    prefix = 'tspec'
 
-    refspecA = 'SQ0043.fits'
-    refspecB = 'SQ0044.fits'
+    refspecA = 'tspec0077.fits'
+    refspecB = 'tspec0078.fits'
 
     #finish_combine(work_dir, raw_dir, telluric, prefix)
     #finish_combine(work_dir, raw_dir, obj_name, prefix)

@@ -14,7 +14,7 @@ def fix_la_cosmic_header(wd, filename, for_setjd=False):
     cleaned = fits.open(clean_name)
     
     cleaned[0].header = orig[0].header
-    cleaned.writeto(clean_name, clobber=True)  # overwrites cleaned file with proper header
+    cleaned.writeto(clean_name, overwrite=True)  # overwrites cleaned file with proper header
     
     return None
 

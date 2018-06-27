@@ -55,9 +55,9 @@
 # when it asks you where to put the resultant dark subtracted flats give it 
 # a corresponding list e.g. flat1_d.fits,flat2_d.fits,...
 # DO NOT enter any spaces after the commas
-# Make sure that flats.lis has the filenames that are the results after the dark sub
 
 # You can also just do --
+# Make sure that flats.lis has the correct filenames
 # flats_d.lis has all the flat field image names but with a 
 # _d before the .fits to show that these are dark subtracted flats.
 
@@ -119,7 +119,8 @@
 # set backbround: type "b" and then "t", then "s" and "s" to set lower and upper limits on each side of the trace
 # type f at the end to refit the background. Type "q" to go back to the traces, and "n" for the next aperture. When happy with the aperture, "q" to go to the fitting.
 
-# After fitting hte background it will ask you interactively if you want to fit the apertures. Say 'yes' to all of them. This answer
+# After fitting hte background it will ask you interactively if you want to fit the apertures. 
+# Say 'yes' to all of them. This answer
 # has to be typed in the display window, NOT the terminal.
 # adjust the order of the spline function by typing ':' then "o 3" for instance
 # keep in mind that once you change the order of the spline function it will keep the same order for the next spectrum too
@@ -145,7 +146,6 @@
 # create a list of all flat-fielded science frames:
 # now copy the list to create a set of flattened names
     > cp sci.lis sci_f.lis
-
 # MAKE SURE TO -------------
 # replace string .fits with _f.fits, in any text editor, in sci_f.lis
 # OTHERWISE IMARITH WILL OVERWRITE!
@@ -153,6 +153,10 @@
 # applying flat-field correction on all science frames. 
 # ----------------- ccdproc has never worked for me. Instead do: ------------------- # 
     > imarith @sci.lis / flat_n1.fits @sci_f.lis
+# The spaces around the operator '/' are important. Do not drop them.
+
+# Although, the title this step refers to dark subtraction, I haven't done any dark subtraction
+# for any of the science frames because the A-B/B-A process should take care of that by design.
 
 # In case ccdproc does work, 
 # Examples with ccdproc:
@@ -191,10 +195,12 @@
 # for the telluric standard star HIP 75230
 # with ABBA sequence 57,58,59,60
     > imcomb t57ab.fits,t60ab.fits hip75230ab_mean.fits combine='average'
+    > imcomb t58ba.fits,t59ba.fits hip75230ba_mean.fits combine='average'
 
 # and for the source galaxy XL55
 # with ABBA sequence 61,62,63,64 and another ABBA sequence 69,70,71,72
     > imcomb t61ab.fits,t64ab.fits,t69ab.fits,t72ab.fits xl55ab_mean.fits combine='average'
+    > imcomb t62ba.fits,t63ba.fits,t70ba.fits,t71ba.fits xl55ba_mean.fits combine='average'
 
 # If you want to do median combination,
     > imcombine @IC2520_A-B.lst output=IC2520_AB_comb.fits combine=median
@@ -224,12 +230,13 @@
     IDL> la_cosmic,['xl53_AB_median.fits'],masklist=['mask_xl53_AB_median.fits'],outsuf="_cleaned",readn=10.0,gain=3.8,sigclip=10.0
     IDL> la_cosmic,['tspec0069.fits'],masklist=['mask_tspec0069.fits'],outsuf="_cleaned",readn=10.0,gain=3.8,sigclip=10.0
 
-# You should run LA_COSMIC on the combined image for the galaxy and also on two 
-# RAW (not flat fielded!!) individual frames for the galaxy.
+# You should run LA_COSMIC on the combined images for the galaxy and also 
+# on two RAW (not flat fielded!!) individual frames for the galaxy.
 # Choose indiv frames which represent an A position and a B position on the slit.
 # These indiv frames will be used as a reference frame for wavelength calibration,
 # one for each slit position, so you don't want cosmic rays in it which could be 
 # confused for emission lines.
+# So typically you will run the la_cosmic command 4 times per object.
 
 # LA_COSMIC might give you the following error for the indiv frame
 # % Program caused arithmetic error: Floating illegal operand
@@ -256,7 +263,7 @@
     > cleaned = fits.open('/path/to/cleaned_image_from_lacosmic.fits')
 
     > cleaned[0].header = orig[0].header
-    > cleaned.writeto('/path/to/cleaned_image_from_lacosmic.fits', clobber=True)  # overwrites cleaned file with proper header
+    > cleaned.writeto('/path/to/cleaned_image_from_lacosmic.fits', overwrite=True)  # overwrites cleaned file with proper header
 
 # Or use a script,
 
