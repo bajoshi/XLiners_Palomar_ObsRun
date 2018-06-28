@@ -16,9 +16,9 @@ if __name__ == '__main__':
     
     # set directories and names
     palomar_datadir = '/Volumes/Bhavins_backup/ipac/Palomar_data/'
-    workdir = '2016/2016A/P2016A/fluxcal_workdir2018_2016Anight2/'
+    workdir = '2016/2016B/baj_work_night2/'
     obj_name = 'hd216219'
-    exptime = 80.0
+    exptime = 120.0
 
     # open discor given spectrum 
     hdu_A = fits.open(palomar_datadir + workdir + obj_name + '_AB_tellinterp_dispcor.fits')
@@ -40,19 +40,19 @@ if __name__ == '__main__':
     # Save the spectra as plain text files
     # All A spectra
     np.savetxt(palomar_datadir + workdir + obj_name + '_A_Jspec_dispcor.txt', \
-        np.c_[jwav_ab, jspec_ab], fmt='%.4f', delimiter=' ', header='wav[A] spec[DN/s]')
+        np.c_[jwav_ab, jspec_ab], fmt='%.4e', delimiter=' ', header='wav[A] spec[DN/s]')
     np.savetxt(palomar_datadir + workdir + obj_name + '_A_Hspec_dispcor.txt', \
-        np.c_[hwav_ab, hspec_ab], fmt='%.4f', delimiter=' ', header='wav[A] spec[DN/s]')
+        np.c_[hwav_ab, hspec_ab], fmt='%.4e', delimiter=' ', header='wav[A] spec[DN/s]')
     np.savetxt(palomar_datadir + workdir + obj_name + '_A_Kspec_dispcor.txt', \
-        np.c_[kwav_ab, kspec_ab], fmt='%.4f', delimiter=' ', header='wav[A] spec[DN/s]')
+        np.c_[kwav_ab, kspec_ab], fmt='%.4e', delimiter=' ', header='wav[A] spec[DN/s]')
 
     # All B spectra
     np.savetxt(palomar_datadir + workdir + obj_name + '_B_Jspec_dispcor.txt', \
-        np.c_[jwav_ba, jspec_ba], fmt='%.4f', delimiter=' ', header='wav[A] spec[DN/s]')
+        np.c_[jwav_ba, jspec_ba], fmt='%.4e', delimiter=' ', header='wav[A] spec[DN/s]')
     np.savetxt(palomar_datadir + workdir + obj_name + '_B_Hspec_dispcor.txt', \
-        np.c_[hwav_ba, hspec_ba], fmt='%.4f', delimiter=' ', header='wav[A] spec[DN/s]')
+        np.c_[hwav_ba, hspec_ba], fmt='%.4e', delimiter=' ', header='wav[A] spec[DN/s]')
     np.savetxt(palomar_datadir + workdir + obj_name + '_B_Kspec_dispcor.txt', \
-        np.c_[kwav_ba, kspec_ba], fmt='%.4f', delimiter=' ', header='wav[A] spec[DN/s]')
+        np.c_[kwav_ba, kspec_ba], fmt='%.4e', delimiter=' ', header='wav[A] spec[DN/s]')
 
     # close HDUs
     hdu_A.close()

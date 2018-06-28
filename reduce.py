@@ -245,15 +245,15 @@ if __name__ == '__main__':
     iraf.onedspec(_doprint=0)
 
     # definitions
-    work_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2016/2016A/P2016A/fluxcal_workdir2018_2016Anight2/'
-    raw_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2016/2016A/P2016A/night2_2016MAY24/'
+    work_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2016/2016B/baj_work_night2/'
+    raw_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2016/2016B/2016OCT22/'
     obj_name = 'hd216219'
     redshift = 0.0
-    telluric = 'hip64248'
+    telluric = 'hip5164'
     prefix = 'tspec'
 
-    refspecA = 'tspec0077.fits'
-    refspecB = 'tspec0078.fits'
+    refspecA = 'tspec0054.fits'
+    refspecB = 'tspec0055.fits'
 
     #finish_combine(work_dir, raw_dir, telluric, prefix)
     #finish_combine(work_dir, raw_dir, obj_name, prefix)
@@ -282,8 +282,8 @@ if __name__ == '__main__':
         MAKE SURE to run apall on the telluric as well.
     """
 
-    #finish_final(work_dir, obj_name, telluric, refspecA, refspecB)
-    #sys.exit(0)
+    finish_final(work_dir, obj_name, telluric, refspecA, refspecB)
+    sys.exit(0)
 
     """
         RUN DISPCOR in IRAF now!
