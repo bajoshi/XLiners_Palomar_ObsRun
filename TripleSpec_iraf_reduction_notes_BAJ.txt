@@ -428,6 +428,7 @@ When enough lines are identified, type "l" to load the line catalog and "a", the
 
 
 ######### --------------- #########
+#  IF you ARE running the procedure for the FIRST TIME in a night ------- set all the above to YES if you haven't defined apertures already.
 #  IF you are NOT running the procedure for the first time in a night -------
 
 1. SET ALL THE ABOVE "NO" TO "YES" and run apall. The keys and process are the same as before.

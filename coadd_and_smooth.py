@@ -103,9 +103,14 @@ def stack_and_finish(work_dir, obj_name, redshift, smooth_width):
     k_coadd = coadd_AB(kspec_ab, kspec_ba, kwav_ab, kwav_ba, kwav_grid, avg_delta)
 
     # smooth the coadded spectra
-    j_coadd_smooth = smoothspectra(j_coadd, width=smooth_width)
-    h_coadd_smooth = smoothspectra(h_coadd, width=smooth_width)
-    k_coadd_smooth = smoothspectra(k_coadd, width=smooth_width)
+    if smooth_width > 1.0:
+        j_coadd_smooth = smoothspectra(j_coadd, width=smooth_width)
+        h_coadd_smooth = smoothspectra(h_coadd, width=smooth_width)
+        k_coadd_smooth = smoothspectra(k_coadd, width=smooth_width)
+    else:
+        j_coadd_smooth = j_coadd
+        h_coadd_smooth = h_coadd
+        k_coadd_smooth = k_coadd
 
     if smooth_width > 1.0:
         pfs.plotspec(work_dir, jwav_grid, j_coadd_smooth, obj_name, 'j', 'coadd_sm', redshift)

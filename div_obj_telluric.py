@@ -40,7 +40,7 @@ def div_obj(work_dir, obj_name, tell_name, slitpos, refspec):
 
     obj_spec[0].header.set('REFSPEC1', refspec)
 
-    obj_spec.writeto(obj_filename.replace('.fits', '_tellinterp_norm.fits'), clobber=True)
+    obj_spec.writeto(obj_filename.replace('.fits', '_tellinterp_norm.fits'), overwrite=True)
 
     return None
 

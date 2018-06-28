@@ -219,8 +219,8 @@ def finish_final(work_dir, obj_name, tell_name, refspecA, refspecB):
 
     # check if the telluric stellar abs features have already been 
     # interpolated over. If not then do the interpolation and save.
-    tell_interp_A = tell_name + '_AB_' + '_stellarlines_interp_norm_bksub.fits'
-    tell_interp_B = tell_name + '_BA_' + '_stellarlines_interp_norm_bksub.fits'
+    tell_interp_A = tell_name + '_AB_' + 'stellarlines_interp_norm_bksub.fits'
+    tell_interp_B = tell_name + '_BA_' + 'stellarlines_interp_norm_bksub.fits'
 
     if not os.path.isfile(work_dir + tell_interp_A):
         ti.do_all(work_dir, tell_name, 'AB')
@@ -248,7 +248,7 @@ if __name__ == '__main__':
     work_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2016/2016A/P2016A/fluxcal_workdir2018_2016Anight2/'
     raw_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2016/2016A/P2016A/night2_2016MAY24/'
     obj_name = 'hd216219'
-    redshift = 0.0225
+    redshift = 0.0
     telluric = 'hip64248'
     prefix = 'tspec'
 
@@ -289,5 +289,5 @@ if __name__ == '__main__':
         RUN DISPCOR in IRAF now!
         Check reduction notes.
     """
-    cs.stack_and_finish(work_dir, obj_name, redshift, smooth_width=3.0)
+    cs.stack_and_finish(work_dir, obj_name, redshift, smooth_width=1.0)
     sys.exit(0)
