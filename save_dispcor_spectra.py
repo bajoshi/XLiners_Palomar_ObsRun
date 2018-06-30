@@ -16,9 +16,9 @@ if __name__ == '__main__':
     
     # set directories and names
     palomar_datadir = '/Volumes/Bhavins_backup/ipac/Palomar_data/'
-    workdir = '2016/2016B/baj_work_night2/'
+    workdir = '2016/2016A/P2016A/fluxcal_workdir2018_2016Anight2/'
     obj_name = 'hd216219'
-    exptime = 120.0
+    exptime = 20.0
 
     # open discor given spectrum 
     hdu_A = fits.open(palomar_datadir + workdir + obj_name + '_AB_tellinterp_dispcor.fits')
