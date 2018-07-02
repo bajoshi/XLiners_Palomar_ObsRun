@@ -245,19 +245,19 @@ if __name__ == '__main__':
     iraf.onedspec(_doprint=0)
 
     # definitions
-    work_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2016/2016A/P2016A/fluxcal_workdir2018_2016Anight1/'
-    raw_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2016/2016A/P2016A/night1_2016MAY23/'
-    obj_name = 'hd216219'
+    work_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2017/fluxcal_workdir2018_2017Anight3/'
+    raw_dir = '/Volumes/Bhavins_backup/ipac/Palomar_data/2017/20170511/'
+    obj_name = 'hd173638'
     redshift = 0.0
-    telluric = 'hip64248'
+    telluric = 'hip65280'
     prefix = 'tspec'
 
-    refspecA = 'tspec0077.fits'
-    refspecB = 'tspec0078.fits'
+    refspecA = 'SQ0043.fits'
+    refspecB = 'SQ0044.fits'
 
-    finish_combine(work_dir, raw_dir, telluric, prefix)
+    #finish_combine(work_dir, raw_dir, telluric, prefix)
     #finish_combine(work_dir, raw_dir, obj_name, prefix)
-    sys.exit(0)
+    #sys.exit(0)
 
     """
         Make sure you run LA_COSMIC in IDL before this next step is run.
@@ -283,8 +283,8 @@ if __name__ == '__main__':
         MAKE SURE to run apall on the telluric as well.
     """
 
-    #finish_final(work_dir, obj_name, telluric, refspecA, refspecB)
-    #sys.exit(0)
+    finish_final(work_dir, obj_name, telluric, refspecA, refspecB)
+    sys.exit(0)
 
     """
         RUN DISPCOR in IRAF now!

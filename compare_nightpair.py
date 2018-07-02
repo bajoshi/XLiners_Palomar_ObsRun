@@ -17,8 +17,8 @@ sys.path.append(xliners_dir)
 if __name__ == '__main__':
 
     # define directories for both nights
-    wd_n1 = '/Volumes/Bhavins_backup/ipac/Palomar_data/2016/2016A/P2016A/fluxcal_workdir2018_2016Anight1/'
-    wd_n2 = '/Volumes/Bhavins_backup/ipac/Palomar_data/2016/2016A/P2016A/fluxcal_workdir2018_2016Anight2/'
+    wd_n1 = '/Volumes/Bhavins_backup/ipac/Palomar_data/2017/fluxcal_workdir2018_2017Anight1/'
+    wd_n2 = '/Volumes/Bhavins_backup/ipac/Palomar_data/2017/fluxcal_workdir2018_2017Anight3/'
     
     # read all fits files needed
     n1a = fits.open(wd_n1 + 'hip64248_AB_bksub.fits')
@@ -36,20 +36,20 @@ if __name__ == '__main__':
     # might be different due to observing conditions like seeing
     # and airmass.
     # All A positions
-    ja_n1 = n1a[0].data[0][0] / np.nanmedian(n1a[0].data[0][0])
-    ha_n1 = n1a[0].data[0][1] / np.nanmedian(n1a[0].data[0][1])
-    ka_n1 = n1a[0].data[0][2] / np.nanmedian(n1a[0].data[0][2])
-    ja_n2 = n2a[0].data[0][0] / np.nanmedian(n2a[0].data[0][0])
-    ha_n2 = n2a[0].data[0][1] / np.nanmedian(n2a[0].data[0][1])
-    ka_n2 = n2a[0].data[0][2] / np.nanmedian(n2a[0].data[0][2])
+    ja_n1 = n1a[0].data[0][0] #/ np.nanmedian(n1a[0].data[0][0])
+    ha_n1 = n1a[0].data[0][1] #/ np.nanmedian(n1a[0].data[0][1])
+    ka_n1 = n1a[0].data[0][2] #/ np.nanmedian(n1a[0].data[0][2])
+    ja_n2 = n2a[0].data[0][0] #/ np.nanmedian(n2a[0].data[0][0])
+    ha_n2 = n2a[0].data[0][1] #/ np.nanmedian(n2a[0].data[0][1])
+    ka_n2 = n2a[0].data[0][2] #/ np.nanmedian(n2a[0].data[0][2])
 
     # All B positions
-    jb_n1 = n1b[0].data[0][0] / np.nanmedian(n1b[0].data[0][0])
-    hb_n1 = n1b[0].data[0][1] / np.nanmedian(n1b[0].data[0][1])
-    kb_n1 = n1b[0].data[0][2] / np.nanmedian(n1b[0].data[0][2])
-    jb_n2 = n2b[0].data[0][0] / np.nanmedian(n2b[0].data[0][0])
-    hb_n2 = n2b[0].data[0][1] / np.nanmedian(n2b[0].data[0][1])
-    kb_n2 = n2b[0].data[0][2] / np.nanmedian(n2b[0].data[0][2])
+    jb_n1 = n1b[0].data[0][0] #/ np.nanmedian(n1b[0].data[0][0])
+    hb_n1 = n1b[0].data[0][1] #/ np.nanmedian(n1b[0].data[0][1])
+    kb_n1 = n1b[0].data[0][2] #/ np.nanmedian(n1b[0].data[0][2])
+    jb_n2 = n2b[0].data[0][0] #/ np.nanmedian(n2b[0].data[0][0])
+    hb_n2 = n2b[0].data[0][1] #/ np.nanmedian(n2b[0].data[0][1])
+    kb_n2 = n2b[0].data[0][2] #/ np.nanmedian(n2b[0].data[0][2])
 
     # Plot to compare
     gs = gridspec.GridSpec(10,21)
@@ -90,6 +90,26 @@ if __name__ == '__main__':
     # Kband B pos
     ax6.plot(np.arange(len(kb_n1)), kb_n1)
     ax6.plot(np.arange(len(kb_n2)), kb_n2)
+
+    plt.show()
+
+    plt.cla()
+    plt.clf()
+    plt.close()
+
+    # Divide 
+    ja_res = ja_n1 / ja_n2
+    ha_res = ha_n1 / ha_n2
+    ka_res = ka_n1 / ka_n2
+
+    fig2 = plt.figure()
+    ax1 = fig2.add_subplot(gs[:,:7])
+    ax2 = fig2.add_subplot(gs[:,7:14])
+    ax3 = fig2.add_subplot(gs[:,14:])
+
+    ax1.plot(np.arange(len(ja_res)), ja_res)
+    ax2.plot(np.arange(len(ha_res)), ha_res)
+    ax3.plot(np.arange(len(ka_res)), ka_res)
 
     plt.show()
 

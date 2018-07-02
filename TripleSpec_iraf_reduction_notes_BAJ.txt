@@ -406,9 +406,9 @@ When enough lines are identified, type "l" to load the line catalog and "a", the
     > epar apall
 
 # It needs the following to be set, (showing an example for the star HIP75230)
-# Input: hip75230ab_mean
+# Input: hip75230_AB_median_cleaned.fits
 # Output: test_hip75230_bk  # added test_ as prefix because we werent sure if it would work
-# references: hip75230ab_mean  # same as input. i.e. It will use the same image as reference for aperture info 
+# references: hip75230_AB_median_cleaned  # same as input. i.e. It will use the same image as reference for aperture info 
 # apall.interactive: YES
 # apall.find: NO
 # apall.recenter: NO
