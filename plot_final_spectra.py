@@ -17,8 +17,8 @@ def get_flux_lims(wav, spec, wav_low, wav_high, force_zero=True, extension_facto
     spec = np.asarray(spec)
 
     lam_idx = np.where((wav >= wav_low) & (wav <= wav_high))[0]
-    low_flux_lim = np.min(spec[lam_idx])
-    high_flux_lim = np.max(spec[lam_idx])
+    low_flux_lim = np.nanmin(spec[lam_idx])
+    high_flux_lim = np.nanmax(spec[lam_idx])
 
     low_flux_lim -= extension_factor * low_flux_lim
     high_flux_lim += extension_factor * high_flux_lim

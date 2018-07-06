@@ -16,13 +16,15 @@ if __name__ == '__main__':
 
     # set directories and names
     palomar_datadir = '/Volumes/Bhavins_backup/ipac/Palomar_data/'
-    workdir = '2016/2016B/baj_work_night1/'
-    obj_name = 'hd216219'
+    workdir = '2015/baj_work_night2/'
+    obj_name = 'xl49'
 
     # Read in RSRF
-    j_rsrf = np.genfromtxt(palomar_datadir + '2016/2016A/P2016A/fluxcal_workdir2018_2016Anight2/' + 'RSRF_HD216219jnew.txt', \
+    j_rsrf = np.genfromtxt(palomar_datadir + '2015/' + 'HD39949_2016B_night2.lisRSRF_J.txt', \
         dtype=None, names=['wav', 'rsrf'])
-    k_rsrf = np.genfromtxt(palomar_datadir + '2016/2016A/P2016A/fluxcal_workdir2018_2016Anight2/' + 'RSRF_HD216219knew.txt', \
+    h_rsrf = np.genfromtxt(palomar_datadir + '2015/' + 'HD39949_2016B_night2.lisRSRF_H.txt', \
+        dtype=None, names=['wav', 'rsrf'])
+    k_rsrf = np.genfromtxt(palomar_datadir + '2015/' + 'HD39949_2016B_night2.lisRSRF_K.txt', \
         dtype=None, names=['wav', 'rsrf'])
 
     # Read in A and B spectra for J,H,K stored in plain text files
@@ -70,21 +72,21 @@ if __name__ == '__main__':
     kb_wav /= 1e4
 
     # create interpolation wavelength grids
-    jstep = 0.000172784 # in microns
-    samp = 2086
-    jstart = 1.12955
-    #jgrid = np.linspace(start=jstart, stop=jstart + samp*jstep, num=samp, endpoint=False)
-
     jgrid = j_rsrf['wav']
+    hgrid = h_rsrf['wav']
+    kgrid = k_rsrf['wav']
 
-    kstep = 0.0002875  # in microns
-    kstart = 1.88
-    kgrid = np.linspace(start=kstart, stop=kstart + samp*kstep, num=samp, endpoint=False)
+    #kstep = 0.0002875  # in microns
+    #kstart = 1.88
+    #kgrid = np.linspace(start=kstart, stop=kstart + samp*kstep, num=samp, endpoint=False)
 
     # Now interpolate
     # Both A and B spectra are interpolated to the same grid
     ja_spec_interp = griddata(points=ja_wav, values=ja_spec, xi=jgrid, method='linear')
     jb_spec_interp = griddata(points=jb_wav, values=jb_spec, xi=jgrid, method='linear')
+
+    ha_spec_interp = griddata(points=ha_wav, values=ha_spec, xi=hgrid, method='linear')
+    hb_spec_interp = griddata(points=hb_wav, values=hb_spec, xi=hgrid, method='linear')
 
     ka_spec_interp = griddata(points=ka_wav, values=ka_spec, xi=kgrid, method='linear')
     kb_spec_interp = griddata(points=kb_wav, values=kb_spec, xi=kgrid, method='linear')
@@ -103,6 +105,9 @@ if __name__ == '__main__':
     ja_spec_interp /= j_rsrf['rsrf']
     jb_spec_interp /= j_rsrf['rsrf']
 
+    ha_spec_interp /= h_rsrf['rsrf']
+    hb_spec_interp /= h_rsrf['rsrf']
+
     ka_spec_interp /= k_rsrf['rsrf']
     kb_spec_interp /= k_rsrf['rsrf']
 
@@ -113,6 +118,12 @@ if __name__ == '__main__':
     np.savetxt(palomar_datadir + workdir + obj_name + '_B_Jspec_phys_units.txt', \
         np.c_[jgrid, jb_spec_interp], fmt='%.4e', delimiter=' ', header='wav[micron] spec[W/m2/micron]')
 
+    # Jband
+    np.savetxt(palomar_datadir + workdir + obj_name + '_A_Hspec_phys_units.txt', \
+        np.c_[hgrid, ha_spec_interp], fmt='%.4e', delimiter=' ', header='wav[micron] spec[W/m2/micron]')
+    np.savetxt(palomar_datadir + workdir + obj_name + '_B_Hspec_phys_units.txt', \
+        np.c_[hgrid, hb_spec_interp], fmt='%.4e', delimiter=' ', header='wav[micron] spec[W/m2/micron]')
+
     # Kband
     np.savetxt(palomar_datadir + workdir + obj_name + '_A_Kspec_phys_units.txt', \
         np.c_[kgrid, ka_spec_interp], fmt='%.4e', delimiter=' ', header='wav[micron] spec[W/m2/micron]')
@@ -120,10 +131,12 @@ if __name__ == '__main__':
         np.c_[kgrid, kb_spec_interp], fmt='%.4e', delimiter=' ', header='wav[micron] spec[W/m2/micron]')
 
     # plot new spectrum
+    """
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot(kgrid, ka_spec_interp-3e-15)
     ax.plot(kgrid, kb_spec_interp)
     plt.show()
+    """
 
     sys.exit(0)
